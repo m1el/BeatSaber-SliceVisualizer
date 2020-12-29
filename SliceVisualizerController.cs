@@ -74,10 +74,16 @@ namespace SliceVisualizer
              *     Slice)))
              */
 
+            var cubeRotation = rng.Next(0, 360);
+            var isDirectional = true;
+            var cubeX = rng.Next(-2, 2);
+            var cubeY = rng.Next(0, 3);
             var cubeScale = 0.9f;
             var circleScale = 0.2f;
             var arrowScale = 1.0f;
             var decalOffset = 0.005f;
+
+            var slicedBlock = new SlicedBlock();
 
             var blockMaskGO = new GameObject("BlockMask");
             var blockTransform = blockMaskGO.AddComponent<RectTransform>();
@@ -90,63 +96,72 @@ namespace SliceVisualizer
             maskImage.sprite = Assets.RRect;
 
             blockTransform.SetParent(parent);
+            blockTransform.localRotation = Quaternion.identity;
+            blockTransform.localPosition = Vector3.zero;
+            slicedBlock.gameObject = blockMaskGO;
+            slicedBlock.blockTransform = blockTransform;
             blockMaskGO.SetActive(true);
-            var position = new Vector3(rng.Next(-2, 2), rng.Next(0, 3), 0f);
-            var pivot = new Vector3(0.5f, 0.5f, 0f) + position;
-            blockTransform.localPosition = position;
-            blockTransform.RotateAround(pivot, new Vector3(0f, 0f, 1f), rng.Next(0, 360));
             //Log.Info(string.Format("transform.rotation: {0}", blockMaskGO.transform.localRotation));
             //Log.Info(string.Format("transform.position: {0}", blockMaskGO.transform.localPosition));
 
-            var backgroundGO = new GameObject("RoundRect");
-            var background = backgroundGO.AddComponent<SpriteRenderer>();
-            var backgroundTransform = backgroundGO.AddComponent<RectTransform>();
-            background.material = material;
-            background.sprite = Assets.RRect;
-            background.color = new Color(1.0f, 0.5f, 0.5f, 1.0f);
-            backgroundTransform.SetParent(blockTransform);
-
-            backgroundTransform.localScale =  Vector3.one * cubeScale;
-            backgroundTransform.localRotation = Quaternion.identity;
-            var cubeHMargin = (1.0f - cubeScale * Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit) / 2.0f;
-            var cubeVMargin = (1.0f - cubeScale * Assets.RRect.rect.height / Assets.RRect.pixelsPerUnit) / 2.0f;
-            backgroundTransform.localPosition = new Vector3(cubeHMargin, cubeVMargin, 0f);
-            backgroundGO.SetActive(true);
-
-            var arrowGO = new GameObject("Arrow");
-            var arrow = arrowGO.AddComponent<SpriteRenderer>();
-            var arrowTransform = arrowGO.AddComponent<RectTransform>();
-            arrow.material = material;
-            arrow.sprite = Assets.Arrow;
-            arrow.color = new Color(1f, 1f, 1f, 1f);
-            arrowTransform.SetParent(blockTransform);
-            arrowTransform.localScale = Vector3.one * arrowScale;
-            arrowTransform.localRotation = Quaternion.identity;
-            var arrowHMargin = (1.0f - arrowScale * Assets.Arrow.rect.width / Assets.Arrow.pixelsPerUnit) / 2.0f;
-            var arrowVMargin = 1.0f - arrowHMargin - Assets.Arrow.rect.height / Assets.Arrow.pixelsPerUnit;
-            arrowTransform.localPosition = new Vector3(arrowHMargin, arrowVMargin, -decalOffset);
-            arrowGO.SetActive(true);
-
-            var circleGO = new GameObject("Circle");
-            var circle = circleGO.AddComponent<SpriteRenderer>();
-            var circleTransform = circleGO.AddComponent<RectTransform>();
-            circle.material = material;
-            circle.sprite = Assets.Circle;
-            circle.color = new Color(1f, 1f, 1f, 1f);
-            circleTransform.SetParent(blockTransform);
-            circleTransform.localScale = Vector3.one * circleScale;
-            circleTransform.localRotation = Quaternion.identity;
-            var circleHMargin = (1.0f - circleScale * Assets.Circle.rect.width / Assets.Circle.pixelsPerUnit) / 2.0f;
-            var circleVMargin = (1.0f - circleScale * Assets.Circle.rect.height / Assets.Circle.pixelsPerUnit) / 2.0f;
-            circleTransform.localPosition = new Vector3(circleHMargin, circleVMargin, -decalOffset);
-            circleGO.SetActive(true);
-
-            return new SlicedBlock
             {
-                //gameObject = blockMaskGO,
-                background = background,
-                //arrow = arrow,
-            };
+                // Construct note body background
+                var backgroundGO = new GameObject("RoundRect");
+                var background = backgroundGO.AddComponent<SpriteRenderer>();
+                var backgroundTransform = backgroundGO.AddComponent<RectTransform>();
+                background.material = material;
+                background.sprite = Assets.RRect;
+                background.color = new Color(1.0f, 0.5f, 0.5f, 1.0f);
+                backgroundTransform.SetParent(blockTransform);
+
+                backgroundTransform.localScale = Vector3.one * cubeScale;
+                backgroundTransform.localRotation = Quaternion.identity;
+                var cubeHMargin = (1.0f - cubeScale * Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit) / 2.0f;
+                var cubeVMargin = (1.0f - cubeScale * Assets.RRect.rect.height / Assets.RRect.pixelsPerUnit) / 2.0f;
+                backgroundTransform.localPosition = new Vector3(cubeHMargin, cubeVMargin, 0f);
+                backgroundGO.SetActive(true);
+                slicedBlock.background = background;
+            }
+
+            {
+                // Construct the small circle
+                var circleGO = new GameObject("Circle");
+                var circle = circleGO.AddComponent<SpriteRenderer>();
+                var circleTransform = circleGO.AddComponent<RectTransform>();
+                circle.material = material;
+                circle.sprite = Assets.Circle;
+                circle.color = new Color(1f, 1f, 1f, 1f);
+                circleTransform.SetParent(blockTransform);
+                circleTransform.localScale = Vector3.one * circleScale;
+                circleTransform.localRotation = Quaternion.identity;
+                var circleHMargin = (1.0f - circleScale * Assets.Circle.rect.width / Assets.Circle.pixelsPerUnit) / 2.0f;
+                var circleVMargin = (1.0f - circleScale * Assets.Circle.rect.height / Assets.Circle.pixelsPerUnit) / 2.0f;
+                circleTransform.localPosition = new Vector3(circleHMargin, circleVMargin, -decalOffset);
+                circleGO.SetActive(true);
+                slicedBlock.circle = circle;
+            }
+
+            {
+                // Construct the directional arrow
+                var arrowGO = new GameObject("Arrow");
+                var arrow = arrowGO.AddComponent<SpriteRenderer>();
+                var arrowTransform = arrowGO.AddComponent<RectTransform>();
+                arrow.material = material;
+                arrow.sprite = Assets.Arrow;
+                arrow.color = new Color(1f, 1f, 1f, 1f);
+                arrowTransform.SetParent(blockTransform);
+                arrowTransform.localScale = Vector3.one * arrowScale;
+                arrowTransform.localRotation = Quaternion.identity;
+                var arrowHMargin = (1.0f - arrowScale * Assets.Arrow.rect.width / Assets.Arrow.pixelsPerUnit) / 2.0f;
+                var arrowVMargin = 1.0f - arrowHMargin - Assets.Arrow.rect.height / Assets.Arrow.pixelsPerUnit;
+                arrowTransform.localPosition = new Vector3(arrowHMargin, arrowVMargin, -decalOffset);
+                arrowGO.SetActive(true);
+                slicedBlock.arrow = arrow;
+            }
+
+            slicedBlock.SetCubeState(cubeX, cubeY, cubeRotation, isDirectional);
+
+            return slicedBlock;
         }
 
         // These methods are automatically called by Unity, you should remove any you aren't using.
