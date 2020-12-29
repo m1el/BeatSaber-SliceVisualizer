@@ -15,6 +15,8 @@ namespace SliceVisualizer
     public class Plugin
     {
         internal static Plugin Instance { get; private set; }
+        internal static SliceVisualizerController Controller;
+        internal static GameObject ControllerObj;
         internal static IPALogger Log { get; private set; }
 
         [Init]
@@ -28,6 +30,7 @@ namespace SliceVisualizer
             Instance = this;
             Log = logger;
             Assets.Init(logger);
+            SliceVisualizerController.Init(logger);
             Log.Info("SliceVisualizer initialized.");
         }
 
@@ -43,17 +46,36 @@ namespace SliceVisualizer
         */
         #endregion
 
+        private void GameSceneLoaded()
+        {
+            Log.Info("Game scene loaded, probably game start");
+            Controller.ShowSomething();
+        }
+
+        private void MenuSceneLoaded()
+        {
+            Log.Info("Menu scene loaded, probably game end");
+            Controller.ShowSomething();
+        }
+
         [OnStart]
         public void OnApplicationStart()
         {
             Log.Debug("OnApplicationStart");
-            new GameObject("SliceVisualizerController").AddComponent<SliceVisualizerController>();
-
+            BS_Utils.Utilities.BSEvents.gameSceneLoaded += GameSceneLoaded;
+            BS_Utils.Utilities.BSEvents.menuSceneLoaded += MenuSceneLoaded;
+            ControllerObj = new GameObject("SliceVisualizerController");
+            Controller = ControllerObj.AddComponent<SliceVisualizerController>();
+            ControllerObj.SetActive(true);
+            Controller.ShowSomething();
         }
 
         [OnExit]
         public void OnApplicationQuit()
         {
+            ControllerObj.SetActive(false);
+            BS_Utils.Utilities.BSEvents.menuSceneLoaded -= MenuSceneLoaded;
+            BS_Utils.Utilities.BSEvents.gameSceneLoaded -= GameSceneLoaded;
             Log.Debug("OnApplicationQuit");
         }
     }
