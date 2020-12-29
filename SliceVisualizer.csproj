@@ -120,4 +120,9 @@
     <EmbeddedResource Include="Assets\RRect.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(BeatSaberDir)\Beat Saber.exe</StartProgram>
+    <StartWorkingDirectory>$(BeatSaberDir)</StartWorkingDirectory>
+  </PropertyGroup>
 </Project>
