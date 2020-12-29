@@ -27,6 +27,7 @@ namespace SliceVisualizer
         {
             Instance = this;
             Log = logger;
+            Assets.Init(logger);
             Log.Info("SliceVisualizer initialized.");
         }
 
@@ -54,7 +55,6 @@ namespace SliceVisualizer
         public void OnApplicationQuit()
         {
             Log.Debug("OnApplicationQuit");
-
         }
     }
 }
