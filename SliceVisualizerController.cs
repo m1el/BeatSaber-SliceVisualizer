@@ -1,4 +1,5 @@
-﻿using HMUI;
+﻿using BS_Utils.Utilities;
+using HMUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,17 +21,32 @@ namespace SliceVisualizer
     {
         private static int SortingLayerID = 777;
         private static IPALogger Log;
-        private SlicedBlock[] buffer;
-        private int maxItems = 1;
+        private SlicedBlock[] BlockBuffer;
+        private int maxItems = 12;
         private System.Random rng;
+        private BeatmapObjectManager SpawnController;
+        private ColorManager MyColorManager;
         public static void Init(IPALogger logger)
         {
             Log = logger;
         }
-        public void ShowSomething()
+        public void DoSomething()
         {
+            SpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectExecutionRatingsRecorder>().LastOrDefault()
+                .GetPrivateField<BeatmapObjectManager>("_beatmapObjectManager");
+            SpawnController.noteWasCutEvent += OnNoteCut;
+            MyColorManager = GameObject.FindObjectOfType<ColorManager>();
             Build();
             Log.Info("created something?");
+        }
+        public void Stahp()
+        {
+            foreach (var slicedBlock in BlockBuffer)
+            {
+                slicedBlock.Cleanup();
+            }
+            SpawnController.noteWasCutEvent -= OnNoteCut;
+            SpawnController = null;
         }
 
         private GameObject Build()
@@ -39,30 +55,31 @@ namespace SliceVisualizer
             var transform = gameObject.GetComponent<RectTransform>();
             var material = new Material(Shader.Find("Custom/Sprite"));
             ///var material = Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(x => x.name == "UINoGlow");
-            buffer = new SlicedBlock[maxItems];
-            for (var i = 0; i < maxItems; i++)
+            BlockBuffer = new SlicedBlock[maxItems];
+            for (var ii = 0; ii < maxItems; ii++)
             {
-                buffer[i] = BuildBlock(transform, material);
-                Log.Info(string.Format("built another object: {0}", i));
+                BlockBuffer[ii] = BuildBlock(transform, material, ii);
+                Log.Info(string.Format("built another object: {0}", ii));
             }
-
             return gameObject;
         }
 
         private GameObject BuildCanvas()
         {
+            var canvasScale = 0.7f;
+
             rng = new System.Random();
-            var gameObject = new GameObject("TestCanvas");
+            var gameObject = new GameObject("SliceVisualizerCanvas");
             var canvas = gameObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
             gameObject.AddComponent<CanvasScaler>();
             gameObject.AddComponent<GraphicRaycaster>();
-            gameObject.transform.position = new Vector3(0f, 0f, 10f);
-            gameObject.SetActive(true);
+            gameObject.transform.localScale = Vector3.one * canvasScale;
+            gameObject.transform.localPosition = new Vector3(-2f * canvasScale, 1.5f, 16f);
             return gameObject;
         }
 
-        private SlicedBlock BuildBlock(Transform parent, Material material)
+        private SlicedBlock BuildBlock(Transform parent, Material material, int index)
         {
             /*
              * The hierarchy is the following:
@@ -72,44 +89,38 @@ namespace SliceVisualizer
              *   Arrow
              *   (SliceGroup
              *     MissedArea
-             *     Slice)))
+             *     Slice))
              */
-
-            var cubeRotation = rng.Next(0, 360);
-            var isDirectional = true;
-            var cubeX = rng.Next(-2, 2);
-            var cubeY = rng.Next(0, 3);
-            var sliceAngle = rng.Next(360);
-            var sliceOfset = rng.Next(-30, 31) / 31f;
 
             var cubeScale = 0.9f;
             var circleScale = 0.2f;
             var arrowScale = 0.6f;
             var sliceWidth = 0.05f;
 
+            var SortingLayerID = SliceVisualizerController.SortingLayerID + index;
             var slicedBlock = new SlicedBlock();
 
             var blockMaskGO = new GameObject("BlockMask");
             var blockTransform = blockMaskGO.AddComponent<RectTransform>();
             var blockMask = blockMaskGO.AddComponent<Mask>();
             blockMask.enabled = true;
-            
+
             var maskImage = blockMaskGO.AddComponent<SpriteRenderer>();
             maskImage.material = null;
             maskImage.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
             maskImage.sprite = Assets.RRect;
 
             blockTransform.SetParent(parent);
+            blockTransform.localScale = Vector3.one * cubeScale;
             blockTransform.localRotation = Quaternion.identity;
             blockTransform.localPosition = Vector3.zero;
             slicedBlock.gameObject = blockMaskGO;
             slicedBlock.blockTransform = blockTransform;
-            blockMaskGO.SetActive(true);
             //Log.Info(string.Format("transform.rotation: {0}", blockMaskGO.transform.localRotation));
             //Log.Info(string.Format("transform.position: {0}", blockMaskGO.transform.localPosition));
 
             {
-                // Construct note body background
+                // Construct the note body
                 var backgroundGO = new GameObject("RoundRect");
                 var background = backgroundGO.AddComponent<SpriteRenderer>();
                 var backgroundTransform = backgroundGO.AddComponent<RectTransform>();
@@ -120,17 +131,16 @@ namespace SliceVisualizer
                 background.sortingOrder = 0;
                 backgroundTransform.SetParent(blockTransform);
 
-                backgroundTransform.localScale = Vector3.one * cubeScale;
+                backgroundTransform.localScale = Vector3.one;
                 backgroundTransform.localRotation = Quaternion.identity;
-                var halfWidth = cubeScale * Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit / 2.0f;
-                var halfHeight= cubeScale * Assets.RRect.rect.height / Assets.RRect.pixelsPerUnit / 2.0f;
+                var halfWidth = Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit / 2.0f;
+                var halfHeight = Assets.RRect.rect.height / Assets.RRect.pixelsPerUnit / 2.0f;
                 backgroundTransform.localPosition = new Vector3(-halfWidth, -halfHeight, 0f);
-                backgroundGO.SetActive(true);
                 slicedBlock.background = background;
             }
 
             {
-                // Construct the small circle
+                // Construct the small circle in the center
                 var circleGO = new GameObject("Circle");
                 var circle = circleGO.AddComponent<SpriteRenderer>();
                 var circleTransform = circleGO.AddComponent<RectTransform>();
@@ -143,9 +153,8 @@ namespace SliceVisualizer
                 circleTransform.localScale = Vector3.one * circleScale;
                 circleTransform.localRotation = Quaternion.identity;
                 var halfWidth = circleScale * Assets.Circle.rect.width / Assets.Circle.pixelsPerUnit / 2.0f;
-                var halfHeight= circleScale * Assets.Circle.rect.height / Assets.Circle.pixelsPerUnit / 2.0f;
+                var halfHeight = circleScale * Assets.Circle.rect.height / Assets.Circle.pixelsPerUnit / 2.0f;
                 circleTransform.localPosition = new Vector3(-halfWidth, -halfHeight, 0f);
-                circleGO.SetActive(true);
                 slicedBlock.circle = circle;
             }
 
@@ -165,7 +174,6 @@ namespace SliceVisualizer
                 var halfWidth = arrowScale * Assets.Arrow.rect.width / Assets.Arrow.pixelsPerUnit / 2.0f;
                 var centerOffset = halfWidth - arrowScale * Assets.Arrow.rect.height / Assets.Arrow.pixelsPerUnit;
                 arrowTransform.localPosition = new Vector3(-halfWidth, centerOffset, 0f);
-                arrowGO.SetActive(true);
                 slicedBlock.arrow = arrow;
             }
 
@@ -175,12 +183,13 @@ namespace SliceVisualizer
                 var sliceGroupTransform = sliceGroupGO.AddComponent<RectTransform>();
                 sliceGroupTransform.SetParent(blockTransform);
                 sliceGroupTransform.anchoredPosition3D = new Vector3(0.5f, 0.5f, 0f);
+                sliceGroupTransform.localScale = Vector3.one;
                 sliceGroupTransform.localRotation = Quaternion.identity;
                 sliceGroupTransform.localPosition = Vector3.zero;
                 slicedBlock.sliceGroupTransform = sliceGroupTransform;
 
                 {
-                    // missed are background
+                    // missed area background
                     var missedAreaGO = new GameObject("MissedArea");
                     var missedArea = missedAreaGO.AddComponent<SpriteRenderer>();
                     var missedAreaTransform = missedAreaGO.AddComponent<RectTransform>();
@@ -190,10 +199,11 @@ namespace SliceVisualizer
                     missedArea.sortingLayerID = SortingLayerID;
                     missedArea.sortingOrder = 3;
                     missedAreaTransform.SetParent(sliceGroupTransform);
-                    missedAreaTransform.localRotation = Quaternion.identity;
                     missedAreaTransform.localScale = new Vector3(0f, 1f, 1f);
+                    missedAreaTransform.localRotation = Quaternion.identity;
                     missedAreaTransform.localPosition = new Vector3(0f, -0.5f, 0f);
                     slicedBlock.missedAreaTransform = missedAreaTransform;
+                    slicedBlock.missedArea = missedArea;
                 }
 
                 {
@@ -211,13 +221,71 @@ namespace SliceVisualizer
                     sliceTransform.localRotation = Quaternion.identity;
                     sliceTransform.localPosition = new Vector3(-sliceWidth / 2f, -0.5f, 0f);
                     slicedBlock.sliceTransform = sliceTransform;
+                    slicedBlock.slice = slice;
                 }
             }
 
-            slicedBlock.SetCubeState(cubeX, cubeY, cubeRotation, isDirectional);
-            slicedBlock.SetSliceState(sliceOfset, sliceAngle, cubeRotation);
+            slicedBlock.SetInactive();
 
             return slicedBlock;
+        }
+
+        private void OnNoteCut(NoteController noteController, NoteCutInfo info)
+        {
+            if (BlockBuffer.Length == 0) { return; }
+
+
+            var combinedDirection = new Vector3(-info.cutNormal.y, info.cutNormal.x, 0f).normalized;
+            float sliceAngle = Mathf.Atan2(combinedDirection.y, combinedDirection.x) * Mathf.Rad2Deg;
+            sliceAngle -= 90f;
+            var sliceOffset = info.cutDistanceToCenter;
+            // why is this different?
+            // var sliceOffset = Vector3.Dot(info.cutNormal, info.cutPoint
+
+            // Cuts to the left of center have a negative offset
+            Vector3 lineNormal = new Vector3(info.cutNormal.x, info.cutNormal.y, 0f);
+            if (Vector3.Dot(lineNormal, info.cutPoint) < 0f)
+            {
+                sliceOffset = -sliceOffset;
+            }
+            var noteData = noteController.noteData;
+            var cubeRotation = DirectionToRotation[noteData.cutDirection];
+            var isDirectional = noteData.cutDirection != NoteCutDirection.Any;
+            Color color = MyColorManager.ColorForSaberType(info.saberType);
+            var cubeX = noteData.lineIndex;
+            var cubeY = (int)noteData.noteLineLayer;
+
+            var blockIndex = noteData.lineIndex + 4 * (int)noteData.noteLineLayer;
+            var slicedBlock = BlockBuffer[blockIndex];
+
+            slicedBlock.SetCubeState(color, cubeX, cubeY, cubeRotation, isDirectional);
+            slicedBlock.SetSliceState(sliceOffset, sliceAngle, cubeRotation);
+        }
+
+        private static readonly Dictionary<NoteCutDirection, float> DirectionToRotation = new Dictionary<NoteCutDirection, float>()
+        {
+            [NoteCutDirection.None] = 0f,
+            [NoteCutDirection.Any] = 0f,
+            [NoteCutDirection.Down] = 0f,
+            [NoteCutDirection.DownRight] = 45f,
+            [NoteCutDirection.Right] = 90f,
+            [NoteCutDirection.UpRight] = 135f,
+            [NoteCutDirection.Up] = 180f,
+            [NoteCutDirection.UpLeft] = 225f,
+            [NoteCutDirection.Left] = 270f,
+            [NoteCutDirection.DownLeft] = 315f,
+        };
+
+        /// <summary>
+        /// Called every frame if the script is enabled.
+        /// </summary>
+        private void Update()
+        {
+            var delta = Time.deltaTime;
+            foreach (var slicedBlock in BlockBuffer)
+            {
+                slicedBlock.Update(delta);
+            }
         }
 
         // These methods are automatically called by Unity, you should remove any you aren't using.
@@ -239,15 +307,7 @@ namespace SliceVisualizer
         {
 
         }
-
-        /// <summary>
-        /// Called every frame if the script is enabled.
-        /// </summary>
-        private void Update()
-        {
-
-        }
-
+ 
         /// <summary>
         /// Called every frame after every other enabled script's Update().
         /// </summary>

@@ -49,13 +49,13 @@ namespace SliceVisualizer
         private void GameSceneLoaded()
         {
             Log.Info("Game scene loaded, probably game start");
-            Controller.ShowSomething();
+            Controller.DoSomething();
         }
 
         private void MenuSceneLoaded()
         {
             Log.Info("Menu scene loaded, probably game end");
-            Controller.ShowSomething();
+            Controller.Stahp();
         }
 
         [OnStart]
@@ -67,7 +67,6 @@ namespace SliceVisualizer
             ControllerObj = new GameObject("SliceVisualizerController");
             Controller = ControllerObj.AddComponent<SliceVisualizerController>();
             ControllerObj.SetActive(true);
-            Controller.ShowSomething();
         }
 
         [OnExit]

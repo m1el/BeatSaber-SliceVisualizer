@@ -25,14 +25,14 @@ namespace SliceVisualizer
             RRect = LoadSpriteFromResources("SliceVisualizer.Assets.RRect.png");
             Circle = LoadSpriteFromResources("SliceVisualizer.Assets.Circle.png");
             Arrow = LoadSpriteFromResources("SliceVisualizer.Assets.Arrow.png");
-            White = MakePixel(new Color(1f, 1f, 1f, 1f), 1.0f);
+            White = LoadSpriteFromResources("SliceVisualizer.Assets.White.png", 1f);
         }
         static Sprite MakePixel(Color color, float size)
         {
-            var texture = new Texture2D(1, 1);
+            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
             texture.SetPixel(0, 0, color);
             var rect = new Rect(0, 0, 1, 1);
-            var sprite = Sprite.Create(texture, rect, Vector2.zero, 1.0f / size);
+            var sprite = Sprite.Create(texture, rect, Vector2.zero, 1f / size);
             return sprite;
         }
 
