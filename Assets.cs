@@ -15,18 +15,28 @@ namespace SliceVisualizer
         public static Sprite RRect;
         public static Sprite Circle;
         public static Sprite Arrow;
+        public static Sprite White;
         internal static IPALogger Log { get; private set; }
         public static void Init(IPALogger logger)
         {
             Log = logger;
             var assembly = Assembly.GetCallingAssembly();
-            Log.Info(string.Join(", ", assembly.GetManifestResourceNames()));
+            // Log.Info(string.Join(", ", assembly.GetManifestResourceNames()));
             RRect = LoadSpriteFromResources("SliceVisualizer.Assets.RRect.png");
             Circle = LoadSpriteFromResources("SliceVisualizer.Assets.Circle.png");
             Arrow = LoadSpriteFromResources("SliceVisualizer.Assets.Arrow.png");
+            White = MakePixel(new Color(1f, 1f, 1f, 1f), 1.0f);
+        }
+        static Sprite MakePixel(Color color, float size)
+        {
+            var texture = new Texture2D(1, 1);
+            texture.SetPixel(0, 0, color);
+            var rect = new Rect(0, 0, 1, 1);
+            var sprite = Sprite.Create(texture, rect, Vector2.zero, 1.0f / size);
+            return sprite;
         }
 
-        public static Sprite LoadSpriteFromResources(string resourcePath, float pixelsPerUnit = 256.0f)
+        static Sprite LoadSpriteFromResources(string resourcePath, float pixelsPerUnit = 256.0f)
         {
             var assembly = Assembly.GetCallingAssembly();
             var stream = assembly.GetManifestResourceStream(resourcePath);
@@ -36,7 +46,7 @@ namespace SliceVisualizer
             var texture = new Texture2D(2, 2);
             texture.LoadImage(imageData);
             var rect = new Rect(0, 0, texture.width, texture.height);
-            var sprite = Sprite.Create(texture, rect, new Vector2(0, 0), pixelsPerUnit);
+            var sprite = Sprite.Create(texture, rect, Vector2.zero, pixelsPerUnit);
             Log.Info(string.Format("Successfully loaded sprite {0}, w={1}, h={2}",
                 resourcePath, texture.width, texture.height));
             return sprite;
