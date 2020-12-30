@@ -47,14 +47,16 @@ namespace SliceVisualizer
         {
             var sliceWidth = 0.05f;
             var useLogScaling = true;
+            var missedColor = new Color(0f, 0f, 0f, 0.5f);
+            var sliceColor = new Color(1f, 1f, 1f, 1f);
 
             if (useLogScaling)
             {
                 sliceOffset = LogScaling(sliceOffset);
             }
 
-            missedArea.color = new Color(0f, 0f, 0f, 1f);
-            slice.color = new Color(1f, 1f, 1f, 1f);
+            missedArea.color = missedColor;
+            slice.color = sliceColor;
 
             sliceGroupTransform.localRotation = Quaternion.Euler(0f, 0f, sliceAngle - cubeRotation);
             sliceGroupTransform.localPosition = Vector3.zero;

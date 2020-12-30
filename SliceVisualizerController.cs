@@ -234,7 +234,6 @@ namespace SliceVisualizer
         {
             if (BlockBuffer.Length == 0) { return; }
 
-
             var combinedDirection = new Vector3(-info.cutNormal.y, info.cutNormal.x, 0f).normalized;
             float sliceAngle = Mathf.Atan2(combinedDirection.y, combinedDirection.x) * Mathf.Rad2Deg;
             sliceAngle -= 90f;
