@@ -108,7 +108,6 @@
   <ItemGroup>
     <Compile Include="Assets.cs" />
     <Compile Include="Plugin.cs" />
-    <Compile Include="Configuration\PluginConfig.cs" />
     <Compile Include="PluginConfig.cs" />
     <Compile Include="SlicedBlock.cs" />
     <Compile Include="SliceVisualizerController.cs" />
