@@ -3,7 +3,6 @@ using IPA.Config.Data;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -111,8 +110,8 @@ namespace SliceVisualizer
         public virtual float PopEnd { get; set; } = 0.1f;
         public virtual float FadeStart { get; set; } = 0.5f;
         public virtual float PopDistance { get; set; } = 0.5f;
-        public virtual bool PositionFromCubeTransform { get; set; } = false;
-        public virtual bool RotationFromCubeTransform { get; set; } = false;
+        public virtual bool PositionFromCubeTransform { get; set; } = true;
+        public virtual bool RotationFromCubeTransform { get; set; } = true;
         public virtual float CubeScale { get; set; } = 0.9f;
         public virtual float CenterScale { get; set; } = 0.2f;
         public virtual float ArrowScale { get; set; } = 0.6f;
