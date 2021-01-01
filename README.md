@@ -3,6 +3,8 @@
 This plugin shows how your slice is offset from center.
 Using that information, you can train your accuracy.
 
+Demo: https://www.youtube.com/watch?v=mrq-uZ2JnXg
+
 ## Installation
 
 - Install BSIPA, recommended path is to use [Beat Saber Mod Assistant][mod_assistant]
