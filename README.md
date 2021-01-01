@@ -43,7 +43,7 @@ Set to 0.0 to disable this effect.
 Please read the [BSMT Wiki][bsmt_wiki] for more information on plugin development for BeatSaber.
 
 In case you have troubles with setting up paths or references, please read:
-[BSMT Wiki - Resolving References][bsmt_wikir_ref]
+[BSMT Wiki - Resolving References][bsmt_wiki_ref]
 
 To develop this plugin, you'll need:
 
