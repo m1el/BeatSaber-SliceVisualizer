@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
+using System;
+using ScoreScalingMode = SliceVisualizer.PluginConfig.ScoreScalingMode;
 
 namespace SliceVisualizer
 {
+
     internal class SlicedBlock
     {
         public GameObject gameObject { get; set; }
@@ -36,27 +39,31 @@ namespace SliceVisualizer
             this.color = color;
             this.isDirectional = isDirectional;
 
+            var config = PluginConfig.Instance;
             background.color = color;
             blockTransform.localRotation = Quaternion.Euler(0f, 0f, cubeRotation);
             blockTransform.localPosition = new Vector3(cubeX, cubeY, 0f);
 
             var alpha = isDirectional ? 1f : 0f;
-            arrow.color = new Color(1f, 1f, 1f, alpha);
+            arrow.color = Fade(config.ArrowColor, alpha);
         }
         public void SetSliceState(float sliceOffset, float sliceAngle, float cubeRotation)
         {
-            var sliceWidth = 0.05f;
-            var useLogScaling = true;
-            var missedColor = new Color(0f, 0f, 0f, 0.5f);
-            var sliceColor = new Color(1f, 1f, 1f, 1f);
-
-            if (useLogScaling)
+            var config = PluginConfig.Instance;
+            switch (config.ScoreScaling)
             {
-                sliceOffset = LogScaling(sliceOffset);
+                case ScoreScalingMode.Linear:
+                    break;
+                case ScoreScalingMode.Log:
+                    sliceOffset = ApplyScaling(sliceOffset, x => Mathf.Log(x));
+                    break;
+                case ScoreScalingMode.Sqrt:
+                    sliceOffset = ApplyScaling(sliceOffset, x => Mathf.Sqrt(x));
+                    break;
             }
 
-            missedArea.color = missedColor;
-            slice.color = sliceColor;
+            missedArea.color = config.MissedAreaColor;
+            slice.color = config.SliceColor;
 
             sliceGroupTransform.localRotation = Quaternion.Euler(0f, 0f, sliceAngle - cubeRotation);
             sliceGroupTransform.localPosition = Vector3.zero;
@@ -65,21 +72,20 @@ namespace SliceVisualizer
             missedAreaTransform.localScale = new Vector3(sliceOffset, 1f, 1f);
 
             sliceTransform.localRotation = Quaternion.identity;
-            sliceTransform.localPosition = new Vector3(sliceOffset - sliceWidth / 2f, -0.5f, 0f);
+            sliceTransform.localPosition = new Vector3(sliceOffset - config.SliceWidth * 0.5f, -0.5f, 0f);
         }
 
 
-        private static float LogScaling(float distance)
+        private static float ApplyScaling(float distance, Func<float, float> transform)
         {
-            float min = 0.005f;
-            float max= 0.5f;
+            var config = PluginConfig.Instance;
             float sign = Mathf.Sign(distance);
             distance = Mathf.Abs(distance);
 
-            if (distance < min) { return 0.0f; }
-            float logMin = Mathf.Log(min);
-            float logMax = Mathf.Log(max);
-            distance = (Mathf.Log(distance) - logMin) / (logMax - logMin);
+            if (distance < config.ScoreScaleMin) { return 0.0f; }
+            float tMin = transform(config.ScoreScaleMin);
+            float tMax = transform(config.ScoreScaleMax);
+            distance = (transform(distance) - tMin) / (tMax - tMin);
 
             return distance * sign;
         }
@@ -112,52 +118,45 @@ namespace SliceVisualizer
         }
         public void Update(float delta = 0f)
         {
-            float lifetime = 1.0f;
-            float popDistance = 0.5f;
-            float fadeStart = 0.5f;
-            float popEnd = 0.1f;
-            var arrowColor = new Color(1f, 1f, 1f, 1f);
-            var circleColor = new Color(1f, 1f, 1f, 1f);
-            var missedColor = new Color(0f, 0f, 0f, 0.5f);
-            var sliceColor = new Color(1f, 1f, 1f, 0.5f);
+            var config = PluginConfig.Instance;
 
             if (!isActive) { return; }
             aliveTime += delta;
-            if (aliveTime > lifetime)
+            if (aliveTime > config.CubeLifetime)
             {
                 SetInactive();
                 return;
             }
 
-            var t = aliveTime / lifetime;
+            var t = aliveTime / config.CubeLifetime;
             var blockPosition = blockTransform.localPosition;
-            blockPosition.z = Mathf.Lerp(-popDistance, popDistance, t);
+            blockPosition.z = Mathf.Lerp(-config.PopDistance, config.PopDistance, t);
             blockTransform.localPosition = blockPosition;
 
-            if (t < popEnd)
+            if (t < config.PopEnd)
             {
-                var popStrength = InvLerp(fadeStart, 0.0f, t);
+                var popStrength = InvLerp(config.PopEnd, 0.0f, t);
                 background.color = Pop(color, popStrength);
                 needsUpdate = true;
             }
-            else if (t > fadeStart)
+            else if (t > config.FadeStart)
             {
-                var fadeT = InvLerp(fadeStart, 1.0f, t);
+                var fadeT = InvLerp(config.FadeStart, 1.0f, t);
                 var fadeAlpha = Mathf.Lerp(1f, 0f, fadeT);
                 background.color = Fade(color, fadeAlpha);
-                arrow.color = Fade(arrowColor, fadeAlpha);
-                circle.color = Fade(circleColor, fadeAlpha);
-                missedArea.color = Fade(missedColor, fadeAlpha);
-                slice.color = Fade(sliceColor, fadeAlpha);
+                arrow.color = Fade(config.ArrowColor, fadeAlpha);
+                circle.color = Fade(config.CenterColor, fadeAlpha);
+                missedArea.color = Fade(config.MissedAreaColor, fadeAlpha);
+                slice.color = Fade(config.SliceColor, fadeAlpha);
                 needsUpdate = true;
             }
             else if (needsUpdate)
             {
                 background.color = color;
-                arrow.color = arrowColor;
-                circle.color = circleColor;
-                missedArea.color = missedColor;
-                slice.color = sliceColor;
+                arrow.color = config.ArrowColor;
+                circle.color = config.CenterColor;
+                missedArea.color = config.MissedAreaColor;
+                slice.color = config.SliceColor;
                 needsUpdate = false;
             }
         }

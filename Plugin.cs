@@ -8,6 +8,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
+using IPA.Config;
+using IPA.Config.Stores;
 
 namespace SliceVisualizer
 {
@@ -25,26 +27,19 @@ namespace SliceVisualizer
         /// [Init] methods that use a Constructor or called before regular methods like InitWithConfig.
         /// Only use [Init] with one Constructor.
         /// </summary>
-        public void Init(IPALogger logger)
+        public void Init(Config conf, IPALogger logger)
         {
             Instance = this;
             Log = logger;
             Assets.Init(logger);
+
             SliceVisualizerController.Init(logger);
             Log.Info("SliceVisualizer initialized.");
-        }
 
-        #region BSIPA Config
-        //Uncomment to use BSIPA's config
-        /*
-        [Init]
-        public void InitWithConfig(Config conf)
-        {
-            Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
+            PluginConfig.Instance = conf.Generated<PluginConfig>();
+
             Log.Debug("Config loaded");
         }
-        */
-        #endregion
 
         private void GameSceneLoaded()
         {
