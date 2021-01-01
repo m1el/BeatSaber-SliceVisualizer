@@ -6,11 +6,12 @@ Using that information, you can train your accuracy.
 ## Installation
 
 - Install BSIPA, recommended path is to use [Beat Saber Mod Assistant][mod_assistant]
-Copy SliceVizualizer.dll to `Beat Saber\Plugins` directory.
+- Copy SliceVizualizer.dll to `Beat Saber\Plugins` directory.
 
 ## Configuration
 
 Edit `Beat Saber\UserData\SliceVizualizer.json`.
+This file will be created automatically when you first launch the game with the plugin installed.
 
 ### Configuration options:
 - `SliceWidth` (default: 0.05) -- Width of the slice line as a proportion of note size
