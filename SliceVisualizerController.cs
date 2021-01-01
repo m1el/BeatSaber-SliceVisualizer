@@ -244,11 +244,11 @@ namespace SliceVisualizer
 
             var noteData = noteController.noteData;
             // Extract cube rotation from actual cube rotation
-            float cubeRotation;
+            float cubeRotation = 0f;
             if (config.RotationFromCubeTransform) {
                 cubeRotation = noteController.noteTransform.localRotation.eulerAngles.z;
-            } else { 
-                cubeRotation = DirectionToRotation[noteData.cutDirection];
+            } else {
+                DirectionToRotation.TryGetValue(noteData.cutDirection, out cubeRotation);
             }
             float cubeX;
             float cubeY;
@@ -263,7 +263,7 @@ namespace SliceVisualizer
                 cubeY = (int)noteData.noteLineLayer + positionOffset.y;
             }
 
-            var isDirectional = noteData.cutDirection != NoteCutDirection.Any;
+            var isDirectional = DirectionToRotation.ContainsKey(noteData.cutDirection);
             Color color = MyColorManager.ColorForSaberType(info.saberType);
 
             // Re-use cubes at the same column&layer to avoid UI cluttering
@@ -276,8 +276,6 @@ namespace SliceVisualizer
 
         private static readonly Dictionary<NoteCutDirection, float> DirectionToRotation = new Dictionary<NoteCutDirection, float>()
         {
-            [NoteCutDirection.None] = 0f,
-            [NoteCutDirection.Any] = 0f,
             [NoteCutDirection.Down] = 0f,
             [NoteCutDirection.DownRight] = 45f,
             [NoteCutDirection.Right] = 90f,

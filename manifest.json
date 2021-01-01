@@ -3,12 +3,12 @@
   "id": "SliceVisualizer",
   "name": "SliceVisualizer",
   "author": "Igor null <m1el.2027@gmail.com>",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shows your cut data to train your accuracy",
   "gameVersion": "1.13.0",
   "dependsOn": {
     "BSIPA": "^4.0.5",
-    "BS_Utils": "^1.6.5"
+    "BS Utils": "^1.6.5"
   },
   "features": []
 }

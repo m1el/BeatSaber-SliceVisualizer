@@ -44,8 +44,8 @@ namespace SliceVisualizer
             blockTransform.localRotation = Quaternion.Euler(0f, 0f, cubeRotation);
             blockTransform.localPosition = new Vector3(cubeX, cubeY, 0f);
 
-            var alpha = isDirectional ? 1f : 0f;
-            arrow.color = Fade(config.ArrowColor, alpha);
+            var arrowAlpha = isDirectional ? 1f : 0f;
+            arrow.color = Fade(config.ArrowColor, arrowAlpha);
         }
         public void SetSliceState(float sliceOffset, float sliceAngle, float cubeRotation)
         {
@@ -130,6 +130,7 @@ namespace SliceVisualizer
 
             var t = aliveTime / config.CubeLifetime;
             var blockPosition = blockTransform.localPosition;
+            var arrowAlpha = isDirectional ? 1f : 0f;
             blockPosition.z = Mathf.Lerp(-config.PopDistance, config.PopDistance, t);
             blockTransform.localPosition = blockPosition;
 
@@ -144,7 +145,7 @@ namespace SliceVisualizer
                 var fadeT = InvLerp(config.FadeStart, 1.0f, t);
                 var fadeAlpha = Mathf.Lerp(1f, 0f, fadeT);
                 background.color = Fade(color, fadeAlpha);
-                arrow.color = Fade(config.ArrowColor, fadeAlpha);
+                arrow.color = Fade(config.ArrowColor, fadeAlpha * arrowAlpha);
                 circle.color = Fade(config.CenterColor, fadeAlpha);
                 missedArea.color = Fade(config.MissedAreaColor, fadeAlpha);
                 slice.color = Fade(config.SliceColor, fadeAlpha);
@@ -153,7 +154,7 @@ namespace SliceVisualizer
             else if (needsUpdate)
             {
                 background.color = color;
-                arrow.color = config.ArrowColor;
+                arrow.color = Fade(config.ArrowColor, arrowAlpha);
                 circle.color = config.CenterColor;
                 missedArea.color = config.MissedAreaColor;
                 slice.color = config.SliceColor;
