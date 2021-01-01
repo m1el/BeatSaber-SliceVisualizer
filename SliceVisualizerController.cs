@@ -19,7 +19,7 @@ namespace SliceVisualizer
     /// </summary>
     public class SliceVisualizerController : MonoBehaviour
     {
-        private static int SortingLayerID = 777;
+        // private static int SortingLayerID = 777;
         private static IPALogger Log;
         private SlicedBlock[] BlockBuffer;
         private int maxItems = 12;
@@ -34,6 +34,11 @@ namespace SliceVisualizer
         {
             SpawnController = Resources.FindObjectsOfTypeAll<BeatmapObjectExecutionRatingsRecorder>().LastOrDefault()
                 .GetPrivateField<BeatmapObjectManager>("_beatmapObjectManager");
+            if (SpawnController == null)
+            {
+                Log.Info("spawn controller not found. is this multiplayer mode?");
+                return;
+            }
             SpawnController.noteWasCutEvent += OnNoteCut;
             MyColorManager = GameObject.FindObjectOfType<ColorManager>();
             Build();
@@ -66,6 +71,7 @@ namespace SliceVisualizer
 
         private GameObject BuildCanvas()
         {
+            var canvasOffset = new Vector3(0f, 0f, 16f);
             var canvasScale = 0.7f;
 
             rng = new System.Random();
@@ -75,7 +81,7 @@ namespace SliceVisualizer
             gameObject.AddComponent<CanvasScaler>();
             gameObject.AddComponent<GraphicRaycaster>();
             gameObject.transform.localScale = Vector3.one * canvasScale;
-            gameObject.transform.localPosition = new Vector3(-2f * canvasScale, 1.5f, 16f);
+            gameObject.transform.localPosition = canvasOffset;
             return gameObject;
         }
 
@@ -97,7 +103,7 @@ namespace SliceVisualizer
             var arrowScale = 0.6f;
             var sliceWidth = 0.05f;
 
-            var SortingLayerID = SliceVisualizerController.SortingLayerID + index;
+            // var SortingLayerID = SliceVisualizerController.SortingLayerID + index;
             var slicedBlock = new SlicedBlock();
 
             var blockMaskGO = new GameObject("BlockMask");
@@ -127,7 +133,7 @@ namespace SliceVisualizer
                 background.material = material;
                 background.sprite = Assets.RRect;
                 background.color = new Color(1.0f, 0.5f, 0.5f, 1.0f);
-                background.sortingLayerID = SortingLayerID;
+                // background.sortingLayerID = SortingLayerID;
                 background.sortingOrder = 0;
                 backgroundTransform.SetParent(blockTransform);
 
@@ -147,7 +153,7 @@ namespace SliceVisualizer
                 circle.material = material;
                 circle.sprite = Assets.Circle;
                 circle.color = new Color(1f, 1f, 1f, 1f);
-                circle.sortingLayerID = SortingLayerID;
+                // circle.sortingLayerID = SortingLayerID;
                 circle.sortingOrder = 1;
                 circleTransform.SetParent(blockTransform);
                 circleTransform.localScale = Vector3.one * circleScale;
@@ -166,7 +172,7 @@ namespace SliceVisualizer
                 arrow.material = material;
                 arrow.sprite = Assets.Arrow;
                 arrow.color = new Color(1f, 1f, 1f, 1f);
-                arrow.sortingLayerID = SortingLayerID;
+                // arrow.sortingLayerID = SortingLayerID;
                 arrow.sortingOrder = 2;
                 arrowTransform.SetParent(blockTransform);
                 arrowTransform.localScale = Vector3.one * arrowScale;
@@ -196,7 +202,7 @@ namespace SliceVisualizer
                     missedArea.material = material;
                     missedArea.sprite = Assets.White;
                     missedArea.color = new Color(0f, 0f, 0f, 1f);
-                    missedArea.sortingLayerID = SortingLayerID;
+                    // missedArea.sortingLayerID = SortingLayerID;
                     missedArea.sortingOrder = 3;
                     missedAreaTransform.SetParent(sliceGroupTransform);
                     missedAreaTransform.localScale = new Vector3(0f, 1f, 1f);
@@ -214,7 +220,7 @@ namespace SliceVisualizer
                     slice.material = material;
                     slice.sprite = Assets.White;
                     slice.color = new Color(1f, 1f, 1f, 1f);
-                    slice.sortingLayerID = SortingLayerID;
+                    // slice.sortingLayerID = SortingLayerID;
                     slice.sortingOrder = 4;
                     sliceTransform.SetParent(sliceGroupTransform);
                     sliceTransform.localScale = new Vector3(sliceWidth, 1f, 1f);
@@ -232,28 +238,50 @@ namespace SliceVisualizer
 
         private void OnNoteCut(NoteController noteController, NoteCutInfo info)
         {
+            var positionFromCubeTransform = false;
+            var rotationFromCubeTransform = false;
             if (BlockBuffer.Length == 0) { return; }
 
-            var combinedDirection = new Vector3(-info.cutNormal.y, info.cutNormal.x, 0f).normalized;
+            var combinedDirection = new Vector3(-info.cutNormal.y, info.cutNormal.x, 0f);
             float sliceAngle = Mathf.Atan2(combinedDirection.y, combinedDirection.x) * Mathf.Rad2Deg;
-            sliceAngle -= 90f;
+            // The default cube rotation is "arrow down", so we rotate slices 90 degrees counter-clockwise
+            sliceAngle += 90f;
             var sliceOffset = info.cutDistanceToCenter;
             // why is this different?
             // var sliceOffset = Vector3.Dot(info.cutNormal, info.cutPoint
 
             // Cuts to the left of center have a negative offset
-            Vector3 lineNormal = new Vector3(info.cutNormal.x, info.cutNormal.y, 0f);
-            if (Vector3.Dot(lineNormal, info.cutPoint) < 0f)
+            var center = noteController.noteTransform.position;
+            if (Vector3.Dot(info.cutNormal, info.cutPoint - center) > 0f)
             {
                 sliceOffset = -sliceOffset;
             }
+
             var noteData = noteController.noteData;
-            var cubeRotation = DirectionToRotation[noteData.cutDirection];
+            // Extract cube rotation from actual cube rotation
+            float cubeRotation;
+            if (rotationFromCubeTransform) {
+                cubeRotation = noteController.noteTransform.localRotation.eulerAngles.z;
+            } else { 
+                cubeRotation = DirectionToRotation[noteData.cutDirection];
+            }
+            float cubeX;
+            float cubeY;
+            if (positionFromCubeTransform) {
+                var positionScaling = 2.0f;
+                var position = noteController.noteTransform.position * positionScaling;
+                cubeX = position.x;
+                cubeY = position.y;
+            } else {
+                var positionOffset = new Vector2(-1.5f, 1.5f);
+                cubeX = noteData.lineIndex + positionOffset.x;
+                cubeY = (int)noteData.noteLineLayer + positionOffset.y;
+            }
+
             var isDirectional = noteData.cutDirection != NoteCutDirection.Any;
             Color color = MyColorManager.ColorForSaberType(info.saberType);
-            var cubeX = noteData.lineIndex;
-            var cubeY = (int)noteData.noteLineLayer;
 
+            // Re-use cubes at the same column&layer to avoid UI cluttering
             var blockIndex = noteData.lineIndex + 4 * (int)noteData.noteLineLayer;
             var slicedBlock = BlockBuffer[blockIndex];
 

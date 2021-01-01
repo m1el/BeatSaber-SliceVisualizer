@@ -38,7 +38,7 @@ namespace SliceVisualizer
 
             background.color = color;
             blockTransform.localRotation = Quaternion.Euler(0f, 0f, cubeRotation);
-            blockTransform.localPosition = new Vector3(cubeX, cubeY, 0f) + new Vector3(0.5f, 0.5f, 0f);
+            blockTransform.localPosition = new Vector3(cubeX, cubeY, 0f);
 
             var alpha = isDirectional ? 1f : 0f;
             arrow.color = new Color(1f, 1f, 1f, alpha);
@@ -96,16 +96,16 @@ namespace SliceVisualizer
             missedArea = null;
             slice = null;
         }
-        private float InvLerp(float start, float end, float x)
+        private static float InvLerp(float start, float end, float x)
         {
             return Mathf.Clamp((x - start) / (end - start), 0f, 1f);
         }
-        private Color Fade(Color color, float alpha)
+        private static Color Fade(Color color, float alpha)
         {
             color.a *= alpha;
             return color;
         }
-        private Color Pop(Color color, float amount)
+        private static Color Pop(Color color, float amount)
         {
             var white = new Color(1f, 1f, 1f, 1f);
             return color * (1.0f - amount) + amount * white;
