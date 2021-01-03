@@ -20,6 +20,10 @@ namespace SliceVisualizer
         private bool isDirectional;
         private float aliveTime;
         private Color color;
+        private Color otherColor;
+        private Color missedAreaColor;
+        private Color sliceColor;
+        private Color arrowColor;
         private bool needsUpdate = false;
         public bool isActive { get; private set; }
         public void SetInactive()
@@ -32,11 +36,12 @@ namespace SliceVisualizer
             missedArea.color = transparent;
             slice.color = transparent;
         }
-        public void SetCubeState(Color color, float cubeX, float cubeY, float cubeRotation, bool isDirectional)
+        public void SetCubeState(Color color, Color otherColor, float cubeX, float cubeY, float cubeRotation, bool isDirectional)
         {
             isActive = true;
             aliveTime = 0f;
             this.color = color;
+            this.otherColor = otherColor;
             this.isDirectional = isDirectional;
 
             var config = PluginConfig.Instance;
@@ -47,7 +52,8 @@ namespace SliceVisualizer
             var arrowAlpha = isDirectional ? 1f : 0f;
             arrow.color = Fade(config.ArrowColor, arrowAlpha);
         }
-        public void SetSliceState(float sliceOffset, float sliceAngle, float cubeRotation)
+
+        public void SetSliceState(float sliceOffset, float sliceAngle, float cubeRotation, bool directionOk, bool saberTypeOk)
         {
             var config = PluginConfig.Instance;
             switch (config.ScoreScaling)
@@ -62,8 +68,29 @@ namespace SliceVisualizer
                     break;
             }
 
-            missedArea.color = config.MissedAreaColor;
-            slice.color = config.SliceColor;
+            if (saberTypeOk)
+            {
+                missedAreaColor = config.MissedAreaColor;
+                sliceColor = config.SliceColor;
+            }
+            else
+            {
+                missedAreaColor = otherColor;
+                sliceColor = otherColor;
+            }
+
+            if (directionOk)
+            {
+                arrowColor = config.ArrowColor;
+            }
+            else
+            {
+                arrowColor = config.BadDirectionColor;
+            }
+
+            missedArea.color = missedAreaColor;
+            slice.color = sliceColor;
+            arrow.color = arrowColor;
 
             sliceGroupTransform.localRotation = Quaternion.Euler(0f, 0f, sliceAngle - cubeRotation);
             sliceGroupTransform.localPosition = Vector3.zero;
@@ -145,19 +172,19 @@ namespace SliceVisualizer
                 var fadeT = InvLerp(config.FadeStart, 1.0f, t);
                 var fadeAlpha = Mathf.Lerp(1f, 0f, fadeT);
                 background.color = Fade(color, fadeAlpha);
-                arrow.color = Fade(config.ArrowColor, fadeAlpha * arrowAlpha);
+                arrow.color = Fade(arrowColor, fadeAlpha * arrowAlpha);
                 circle.color = Fade(config.CenterColor, fadeAlpha);
-                missedArea.color = Fade(config.MissedAreaColor, fadeAlpha);
-                slice.color = Fade(config.SliceColor, fadeAlpha);
+                missedArea.color = Fade(missedAreaColor, fadeAlpha);
+                slice.color = Fade(sliceColor, fadeAlpha);
                 needsUpdate = true;
             }
             else if (needsUpdate)
             {
                 background.color = color;
-                arrow.color = Fade(config.ArrowColor, arrowAlpha);
+                arrow.color = Fade(arrowColor, arrowAlpha);
                 circle.color = config.CenterColor;
-                missedArea.color = config.MissedAreaColor;
-                slice.color = config.SliceColor;
+                missedArea.color = missedAreaColor;
+                slice.color = sliceColor;
                 needsUpdate = false;
             }
         }
