@@ -222,6 +222,16 @@ namespace SliceVisualizer
             return slicedBlock;
         }
 
+        static SaberType OtherSaber(SaberType saber) {
+            switch (saber)
+            {
+                case SaberType.SaberA: return SaberType.SaberB;
+                case SaberType.SaberB: return SaberType.SaberA;
+            }
+
+            throw new System.ArgumentException(string.Format("Invalid saber type: {0}!", saber));
+        }
+
         private void OnNoteCut(NoteController noteController, NoteCutInfo info)
         {
             var config = PluginConfig.Instance;
@@ -265,13 +275,14 @@ namespace SliceVisualizer
 
             var isDirectional = DirectionToRotation.ContainsKey(noteData.cutDirection);
             Color color = MyColorManager.ColorForSaberType(info.saberType);
+            Color otherCoor = MyColorManager.ColorForSaberType(OtherSaber(info.saberType));
 
             // Re-use cubes at the same column&layer to avoid UI cluttering
             var blockIndex = noteData.lineIndex + 4 * (int)noteData.noteLineLayer;
             var slicedBlock = BlockBuffer[blockIndex];
 
-            slicedBlock.SetCubeState(color, cubeX, cubeY, cubeRotation, isDirectional);
-            slicedBlock.SetSliceState(sliceOffset, sliceAngle, cubeRotation);
+            slicedBlock.SetCubeState(color, otherCoor, cubeX, cubeY, cubeRotation, isDirectional);
+            slicedBlock.SetSliceState(sliceOffset, sliceAngle, cubeRotation, info.directionOK, info.saberTypeOK);
         }
 
         private static readonly Dictionary<NoteCutDirection, float> DirectionToRotation = new Dictionary<NoteCutDirection, float>()
