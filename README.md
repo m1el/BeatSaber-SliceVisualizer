@@ -25,6 +25,7 @@ This option, when set to `Log` or `Sqrt` allows you to exaggerate small offsets,
 - `MissedAreaColor` (default: `[0.0, 0.0, 0.0, 0.5]`) -- RGBA color for the area between note center and cut line.
 - `SliceColor` (default: `[1.0, 1.0, 1.0, 1.0]`) -- RGBA color for the cut line.
 - `ArrowColor` (default: `[1.0, 1.0, 1.0, 1.0]`) -- RGBA color for the arrow image.
+- `BadDirectionColor` (default: `[0.0, 0.0, 0.0, 1.0]`) -- RGBA color for the arrow, in case you cut the note from the wrong side.
 - `CenterColor` (default: `[1.0, 1.0, 1.0, 1.0]`) -- RGBA color for the circle in the center of note.
 - `CubeLifetime` (default: 1.0) -- total lifetime of the visualization in seconds.
 - `PopEnd` (default: 0.1) -- highlight time for the visualization in seconds. set to 0.0 to disable highlighting.
