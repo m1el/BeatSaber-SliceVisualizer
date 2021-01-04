@@ -68,6 +68,8 @@ namespace SliceVisualizer
                     break;
             }
 
+            sliceOffset = Mathf.Clamp(sliceOffset, -0.5f, 0.5f);
+
             if (saberTypeOk)
             {
                 missedAreaColor = config.MissedAreaColor;
