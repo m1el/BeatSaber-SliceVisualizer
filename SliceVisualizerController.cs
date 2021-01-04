@@ -80,7 +80,7 @@ namespace SliceVisualizer
         {
             /*
              * The hierarchy is the following:
-             * (BlockMask
+             * (BlockGroup
              *   RoundRect
              *   Cirle
              *   Arrow
@@ -93,22 +93,33 @@ namespace SliceVisualizer
             // var SortingLayerID = SliceVisualizerController.SortingLayerID + index;
             var slicedBlock = new SlicedBlock();
 
-            var blockMaskGO = new GameObject("BlockMask");
-            var blockTransform = blockMaskGO.AddComponent<RectTransform>();
-            var blockMask = blockMaskGO.AddComponent<Mask>();
-            blockMask.enabled = true;
-
-            var maskImage = blockMaskGO.AddComponent<SpriteRenderer>();
-            maskImage.material = null;
-            maskImage.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
-            maskImage.sprite = Assets.RRect;
+            var blockGroupGO = new GameObject("BlockGroup");
+            var blockTransform = blockGroupGO.AddComponent<RectTransform>();
 
             blockTransform.SetParent(parent);
             blockTransform.localScale = Vector3.one * config.CubeScale;
             blockTransform.localRotation = Quaternion.identity;
             blockTransform.localPosition = Vector3.zero;
-            slicedBlock.gameObject = blockMaskGO;
+            slicedBlock.gameObject = blockGroupGO;
             slicedBlock.blockTransform = blockTransform;
+
+            /*
+            {
+                var blockMaskGO = new GameObject("BlockMask");
+                var maskTransform = blockMaskGO.AddComponent<RectTransform>();
+                maskTransform.SetParent(blockTransform);
+                maskTransform.localScale = Vector3.one;
+                maskTransform.localRotation = Quaternion.identity;
+                var halfWidth = Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit / 2.0f;
+                var halfHeight = Assets.RRect.rect.height / Assets.RRect.pixelsPerUnit / 2.0f;
+                maskTransform.localPosition = new Vector3(-halfWidth, -halfHeight, 0f);
+
+                var blockMask = blockMaskGO.AddComponent<SpriteMask>();
+                blockMask.sprite = Assets.RRect;
+                blockMask.backSortingOrder = -4;
+                blockMask.frontSortingOrder = 0;
+            }
+            */
             //Log.Info(string.Format("transform.rotation: {0}", blockMaskGO.transform.localRotation));
             //Log.Info(string.Format("transform.position: {0}", blockMaskGO.transform.localPosition));
 
@@ -121,9 +132,8 @@ namespace SliceVisualizer
                 background.sprite = Assets.RRect;
                 // background.color = new Color(1.0f, 0.5f, 0.5f, 1.0f);
                 // background.sortingLayerID = SortingLayerID;
-                background.sortingOrder = 0;
+                background.sortingOrder = -4;
                 backgroundTransform.SetParent(blockTransform);
-
                 backgroundTransform.localScale = Vector3.one;
                 backgroundTransform.localRotation = Quaternion.identity;
                 var halfWidth = Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit / 2.0f;
@@ -141,7 +151,7 @@ namespace SliceVisualizer
                 circle.sprite = Assets.Circle;
                 circle.color = config.CenterColor;
                 // circle.sortingLayerID = SortingLayerID;
-                circle.sortingOrder = 1;
+                circle.sortingOrder = -3;
                 circleTransform.SetParent(blockTransform);
                 circleTransform.localScale = Vector3.one * config.CenterScale;
                 circleTransform.localRotation = Quaternion.identity;
@@ -160,7 +170,7 @@ namespace SliceVisualizer
                 arrow.sprite = Assets.Arrow;
                 arrow.color = config.ArrowColor;
                 // arrow.sortingLayerID = SortingLayerID;
-                arrow.sortingOrder = 2;
+                arrow.sortingOrder = -2;
                 arrowTransform.SetParent(blockTransform);
                 arrowTransform.localScale = Vector3.one * config.ArrowScale;
                 arrowTransform.localRotation = Quaternion.identity;
@@ -189,7 +199,8 @@ namespace SliceVisualizer
                     missedArea.sprite = Assets.White;
                     missedArea.color = config.MissedAreaColor;
                     // missedArea.sortingLayerID = SortingLayerID;
-                    missedArea.sortingOrder = 3;
+                    missedArea.sortingOrder = -1;
+                    // missedArea.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
                     missedAreaTransform.SetParent(sliceGroupTransform);
                     missedAreaTransform.localScale = new Vector3(0f, 1f, 1f);
                     missedAreaTransform.localRotation = Quaternion.identity;
@@ -207,7 +218,8 @@ namespace SliceVisualizer
                     slice.sprite = Assets.White;
                     slice.color = config.SliceColor;
                     // slice.sortingLayerID = SortingLayerID;
-                    slice.sortingOrder = 4;
+                    slice.sortingOrder = 0;
+                    // slice.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
                     sliceTransform.SetParent(sliceGroupTransform);
                     sliceTransform.localScale = new Vector3(config.SliceWidth, 1f, 1f);
                     sliceTransform.localRotation = Quaternion.identity;
