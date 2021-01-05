@@ -108,6 +108,10 @@ namespace SliceVisualizer
         public virtual Color BadDirectionColor { get; set; } = new Color(0f, 0f, 0f, 1f);
         [UseConverter(typeof(ColorConverter))]
         public virtual Color CenterColor { get; set; } = new Color(1f, 1f, 1f, 1f);
+        [UseConverter(typeof(ColorConverter))]
+        public virtual Color LeftColor { get; set; } = new Color(1f, 0f, 0f, 1f);
+        [UseConverter(typeof(ColorConverter))]
+        public virtual Color RightColor { get; set; } = new Color(0f, 0f, 1f, 1f);
         public virtual float CubeLifetime { get; set; } = 1f;
         public virtual float PopEnd { get; set; } = 0.1f;
         public virtual float FadeStart { get; set; } = 0.5f;
