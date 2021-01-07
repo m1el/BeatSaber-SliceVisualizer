@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using ScoreScalingMode = SliceVisualizer.PluginConfig.ScoreScalingMode;
 using System.Collections.Generic;
@@ -6,18 +6,18 @@ using System.Collections.Generic;
 namespace SliceVisualizer
 {
 
-    internal class SlicedBlock
+    internal class SlicedBlock : IDisposable
     {
-        public GameObject gameObject { get; set; }
-        public Transform blockTransform { get; set; }
-        public Transform sliceTransform { get; set; }
-        public Transform missedAreaTransform { get; set; }
-        public Transform sliceGroupTransform { get; set; }
-        public SpriteRenderer background { get; set; }
-        public SpriteRenderer arrow { get; set; }
-        public SpriteRenderer circle { get; set; }
-        public SpriteRenderer missedArea { get; set; }
-        public SpriteRenderer slice { get; set; }
+        private GameObject gameObject;
+        private Transform blockTransform;
+        private Transform sliceTransform;
+        private Transform missedAreaTransform;
+        private Transform sliceGroupTransform;
+        private SpriteRenderer background;
+        private SpriteRenderer arrow;
+        private SpriteRenderer circle;
+        private SpriteRenderer missedArea;
+        private SpriteRenderer slice;
         private bool isDirectional;
         private float aliveTime;
         private Color color;
@@ -28,7 +28,7 @@ namespace SliceVisualizer
         private bool needsUpdate = false;
         public bool isActive { get; private set; }
 
-        public static SlicedBlock Build(Transform parent, Material material)
+        public SlicedBlock(Transform parent, Material material)
         {
             /*
              * The hierarchy is the following:
@@ -43,7 +43,6 @@ namespace SliceVisualizer
             var config = PluginConfig.Instance;
 
             // var SortingLayerID = SliceVisualizerController.SortingLayerID + index;
-            var slicedBlock = new SlicedBlock();
 
             var blockGroupGO = new GameObject("BlockGroup");
             var blockTransform = blockGroupGO.AddComponent<RectTransform>();
@@ -52,8 +51,8 @@ namespace SliceVisualizer
             blockTransform.localScale = Vector3.one * config.CubeScale;
             blockTransform.localRotation = Quaternion.identity;
             blockTransform.localPosition = Vector3.zero;
-            slicedBlock.gameObject = blockGroupGO;
-            slicedBlock.blockTransform = blockTransform;
+            gameObject = blockGroupGO;
+            this.blockTransform = blockTransform;
 
             /*
             {
@@ -81,17 +80,19 @@ namespace SliceVisualizer
                 var background = backgroundGO.AddComponent<SpriteRenderer>();
                 var backgroundTransform = backgroundGO.AddComponent<RectTransform>();
                 background.material = material;
-                background.sprite = Assets.RRect;
                 // background.color = new Color(1.0f, 0.5f, 0.5f, 1.0f);
                 // background.sortingLayerID = SortingLayerID;
                 background.sortingOrder = -4;
                 backgroundTransform.SetParent(blockTransform);
                 backgroundTransform.localScale = Vector3.one;
                 backgroundTransform.localRotation = Quaternion.identity;
-                var halfWidth = Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit / 2.0f;
-                var halfHeight = Assets.RRect.rect.height / Assets.RRect.pixelsPerUnit / 2.0f;
-                backgroundTransform.localPosition = new Vector3(-halfWidth, -halfHeight, 0f);
-                slicedBlock.background = background;
+                if (Assets.RRect != null) {
+                    background.sprite = Assets.RRect;
+                    var halfWidth = Assets.RRect.rect.width / Assets.RRect.pixelsPerUnit / 2.0f;
+                    var halfHeight = Assets.RRect.rect.height / Assets.RRect.pixelsPerUnit / 2.0f;
+                    backgroundTransform.localPosition = new Vector3(-halfWidth, -halfHeight, 0f);
+                }
+                this.background = background;
             }
 
             {
@@ -100,17 +101,21 @@ namespace SliceVisualizer
                 var circle = circleGO.AddComponent<SpriteRenderer>();
                 var circleTransform = circleGO.AddComponent<RectTransform>();
                 circle.material = material;
-                circle.sprite = Assets.Circle;
                 circle.color = config.CenterColor;
                 // circle.sortingLayerID = SortingLayerID;
                 circle.sortingOrder = -3;
                 circleTransform.SetParent(blockTransform);
                 circleTransform.localScale = Vector3.one * config.CenterScale;
                 circleTransform.localRotation = Quaternion.identity;
-                var halfWidth = config.CenterScale * Assets.Circle.rect.width / Assets.Circle.pixelsPerUnit / 2.0f;
-                var halfHeight = config.CenterScale * Assets.Circle.rect.height / Assets.Circle.pixelsPerUnit / 2.0f;
-                circleTransform.localPosition = new Vector3(-halfWidth, -halfHeight, 0f);
-                slicedBlock.circle = circle;
+                if (Assets.Circle != null)
+                {
+                    var sprite = Assets.Circle;
+                    circle.sprite = sprite;
+                    var halfWidth = config.ArrowScale * sprite.rect.width / sprite.pixelsPerUnit / 2.0f;
+                    var centerOffset = halfWidth - config.ArrowScale * sprite.rect.height / sprite.pixelsPerUnit;
+                    circleTransform.localPosition = new Vector3(-halfWidth, centerOffset, 0f);
+                }
+                this.circle = circle;
             }
 
             {
@@ -119,17 +124,21 @@ namespace SliceVisualizer
                 var arrow = arrowGO.AddComponent<SpriteRenderer>();
                 var arrowTransform = arrowGO.AddComponent<RectTransform>();
                 arrow.material = material;
-                arrow.sprite = Assets.Arrow;
                 arrow.color = config.ArrowColor;
                 // arrow.sortingLayerID = SortingLayerID;
                 arrow.sortingOrder = -2;
                 arrowTransform.SetParent(blockTransform);
                 arrowTransform.localScale = Vector3.one * config.ArrowScale;
                 arrowTransform.localRotation = Quaternion.identity;
-                var halfWidth = config.ArrowScale * Assets.Arrow.rect.width / Assets.Arrow.pixelsPerUnit / 2.0f;
-                var centerOffset = halfWidth - config.ArrowScale * Assets.Arrow.rect.height / Assets.Arrow.pixelsPerUnit;
-                arrowTransform.localPosition = new Vector3(-halfWidth, centerOffset, 0f);
-                slicedBlock.arrow = arrow;
+                if (Assets.Arrow != null)
+                {
+                    var sprite = Assets.Arrow;
+                    arrow.sprite = sprite;
+                    var halfWidth = config.ArrowScale * sprite.rect.width / sprite.pixelsPerUnit / 2.0f;
+                    var centerOffset = halfWidth - config.ArrowScale * sprite.rect.height / sprite.pixelsPerUnit;
+                    arrowTransform.localPosition = new Vector3(-halfWidth, centerOffset, 0f);
+                }
+                this.arrow = arrow;
             }
 
             {
@@ -140,7 +149,7 @@ namespace SliceVisualizer
                 sliceGroupTransform.localScale = Vector3.one;
                 sliceGroupTransform.localRotation = Quaternion.identity;
                 sliceGroupTransform.localPosition = Vector3.zero;
-                slicedBlock.sliceGroupTransform = sliceGroupTransform;
+                this.sliceGroupTransform = sliceGroupTransform;
 
                 {
                     // missed area background
@@ -157,8 +166,8 @@ namespace SliceVisualizer
                     missedAreaTransform.localScale = new Vector3(0f, 1f, 1f);
                     missedAreaTransform.localRotation = Quaternion.identity;
                     missedAreaTransform.localPosition = new Vector3(0f, -0.5f, 0f);
-                    slicedBlock.missedAreaTransform = missedAreaTransform;
-                    slicedBlock.missedArea = missedArea;
+                    this.missedAreaTransform = missedAreaTransform;
+                    this.missedArea = missedArea;
                 }
 
                 {
@@ -176,14 +185,12 @@ namespace SliceVisualizer
                     sliceTransform.localScale = new Vector3(config.SliceWidth, 1f, 1f);
                     sliceTransform.localRotation = Quaternion.identity;
                     sliceTransform.localPosition = new Vector3(-config.SliceWidth / 2f, -0.5f, 0f);
-                    slicedBlock.sliceTransform = sliceTransform;
-                    slicedBlock.slice = slice;
+                    this.sliceTransform = sliceTransform;
+                    this.slice = slice;
                 }
             }
 
-            slicedBlock.SetActive(false);
-
-            return slicedBlock;
+            SetActive(false);
         }
 
         public void SetActive(bool isActive)
@@ -197,14 +204,15 @@ namespace SliceVisualizer
             circle.gameObject.SetActive(isActive);
             missedArea.gameObject.SetActive(isActive);
             slice.gameObject.SetActive(isActive);
-            this.needsUpdate = isActive;
+            needsUpdate = isActive;
         }
+
         public void SetState(NoteController noteController, NoteCutInfo info, Color color, Color otherColor)
         {
             var config = PluginConfig.Instance;
 
             var combinedDirection = new Vector3(-info.cutNormal.y, info.cutNormal.x, 0f);
-            float sliceAngle = Mathf.Atan2(combinedDirection.y, combinedDirection.x) * Mathf.Rad2Deg;
+            var sliceAngle = Mathf.Atan2(combinedDirection.y, combinedDirection.x) * Mathf.Rad2Deg;
             // The default cube rotation is "arrow down", so we rotate slices 90 degrees counter-clockwise
             sliceAngle += 90f;
             var sliceOffset = info.cutDistanceToCenter;
@@ -220,7 +228,7 @@ namespace SliceVisualizer
 
             var noteData = noteController.noteData;
             // Extract cube rotation from actual cube rotation
-            float cubeRotation = 0f;
+            var cubeRotation = 0f;
             if (config.RotationFromCubeTransform)
             {
                 cubeRotation = noteController.noteTransform.localRotation.eulerAngles.z;
@@ -260,9 +268,9 @@ namespace SliceVisualizer
 
             var isDirectional = DirectionToRotation.ContainsKey(noteData.cutDirection);
 
-            this.SetCubeState(color, otherColor, cubeX, cubeY, cubeRotation, isDirectional);
-            this.SetSliceState(sliceOffset, sliceAngle, cubeRotation, info.directionOK, info.saberTypeOK);
-            this.SetActive(true);
+            SetCubeState(color, otherColor, cubeX, cubeY, cubeRotation, isDirectional);
+            SetSliceState(sliceOffset, sliceAngle, cubeRotation, info.directionOK, info.saberTypeOK);
+            SetActive(true);
         }
 
         private static readonly Dictionary<NoteCutDirection, float> DirectionToRotation = new Dictionary<NoteCutDirection, float>()
@@ -349,29 +357,21 @@ namespace SliceVisualizer
         private static float ApplyScaling(float distance, Func<float, float> transform)
         {
             var config = PluginConfig.Instance;
-            float sign = Mathf.Sign(distance);
+            var sign = Mathf.Sign(distance);
             distance = Mathf.Abs(distance);
 
             if (distance < config.ScoreScaleMin) { return 0.0f; }
-            float tMin = transform(config.ScoreScaleMin);
-            float tMax = transform(config.ScoreScaleMax);
+            var tMin = transform(config.ScoreScaleMin);
+            var tMax = transform(config.ScoreScaleMax);
             distance = (transform(distance) - tMin) / (tMax - tMin);
 
             return distance * sign;
         }
-        public void Cleanup()
+        public void Dispose()
         {
-            isActive = false;
-            gameObject = null;
-            blockTransform = null;
-            sliceTransform = null;
-            missedAreaTransform = null;
-            background = null;
-            arrow = null;
-            circle = null;
-            missedArea = null;
-            slice = null;
+            SetActive(false);
         }
+
         private static float InvLerp(float start, float end, float x)
         {
             return Mathf.Clamp((x - start) / (end - start), 0f, 1f);

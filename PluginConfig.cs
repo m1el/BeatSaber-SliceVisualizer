@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using IPA.Config.Data;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
@@ -9,7 +9,7 @@ using UnityEngine;
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 namespace SliceVisualizer
 {
-    class Dummy
+    public class Dummy
     {
         public static float ValueToFloat(Value val)
         {
@@ -90,7 +90,7 @@ namespace SliceVisualizer
             Sqrt,
             Log,
         }
-        public static PluginConfig Instance { get; set; }
+        public static PluginConfig Instance { get; set; } = null!;
         public virtual bool Enabled { get; set; } = true;
         public virtual float SliceWidth { get; set; } = 0.05f;
 

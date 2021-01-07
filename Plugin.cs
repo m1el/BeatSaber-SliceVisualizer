@@ -9,10 +9,10 @@ namespace SliceVisualizer
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        internal static Plugin Instance { get; private set; }
-        internal static SliceVisualizerController Controller;
-        internal static GameObject ControllerObj;
-        internal static IPALogger Log { get; private set; }
+        internal static Plugin Instance { get; private set; } = null!;
+        internal static SliceVisualizerController Controller = null!;
+        internal static GameObject ControllerObj = null!;
+        internal static IPALogger Log { get; private set; } = null!;
 
         [Init]
         /// <summary>
@@ -25,8 +25,8 @@ namespace SliceVisualizer
             Instance = this;
             Log = logger;
             Assets.Init(logger);
+            Controller = new SliceVisualizerController(logger);
 
-            SliceVisualizerController.Init(logger);
             Log.Info("SliceVisualizer initialized.");
 
             PluginConfig.Instance = conf.Generated<PluginConfig>();

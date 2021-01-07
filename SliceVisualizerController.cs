@@ -1,4 +1,4 @@
-﻿using BS_Utils.Utilities;
+using BS_Utils.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,12 +14,12 @@ namespace SliceVisualizer
     public class SliceVisualizerController : MonoBehaviour
     {
         // private static int SortingLayerID = 777;
-        private static IPALogger Log;
-        private SlicedBlock[] BlockBuffer;
+        private static IPALogger Log = null!;
+        private SlicedBlock[]? BlockBuffer;
         private int maxItems = 12;
-        private BeatmapObjectManager SpawnController;
-        private ColorManager MyColorManager;
-        public static void Init(IPALogger logger)
+        private BeatmapObjectManager? SpawnController;
+        private ColorManager MyColorManager = null!;
+        public SliceVisualizerController(IPALogger logger)
         {
             Log = logger;
         }
@@ -39,17 +39,20 @@ namespace SliceVisualizer
         }
         public void Stahp()
         {
-            if (BlockBuffer == null)
+            if (BlockBuffer != null)
             {
-                return;
+                foreach (var slicedBlock in BlockBuffer)
+                {
+                    slicedBlock.Dispose();
+                }
+                BlockBuffer = null;
             }
-            foreach (var slicedBlock in BlockBuffer)
+
+            if (SpawnController != null)
             {
-                slicedBlock.Cleanup();
+                SpawnController.noteWasCutEvent -= OnNoteCut;
+                SpawnController = null;
             }
-            BlockBuffer = null;
-            SpawnController.noteWasCutEvent -= OnNoteCut;
-            SpawnController = null;
         }
 
         private GameObject Build()
@@ -61,7 +64,7 @@ namespace SliceVisualizer
             BlockBuffer = new SlicedBlock[maxItems];
             for (var ii = 0; ii < maxItems; ii++)
             {
-                BlockBuffer[ii] = SlicedBlock.Build(transform, material);
+                BlockBuffer[ii] = new SlicedBlock(transform, material);
                 Log.Info(string.Format("built another object: {0}", ii));
             }
             return gameObject;
@@ -82,7 +85,7 @@ namespace SliceVisualizer
         }
 
 
-        static SaberType OtherSaber(SaberType saber) {
+        private static SaberType OtherSaber(SaberType saber) {
             switch (saber)
             {
                 case SaberType.SaberA: return SaberType.SaberB;
@@ -94,7 +97,7 @@ namespace SliceVisualizer
 
         private void OnNoteCut(NoteController noteController, NoteCutInfo info)
         {
-            if (BlockBuffer.Length == 0) { return; }
+            if (BlockBuffer == null || BlockBuffer.Length == 0) { return; }
 
             // Re-use cubes at the same column&layer to avoid UI cluttering
             var blockIndex = noteController.noteData.lineIndex + 4 * (int)noteController.noteData.noteLineLayer;
@@ -110,6 +113,9 @@ namespace SliceVisualizer
         private void Update()
         {
             var delta = Time.deltaTime;
+            if (BlockBuffer == null) {
+                return;
+            }
             foreach (var slicedBlock in BlockBuffer)
             {
                 slicedBlock.Update(delta);
