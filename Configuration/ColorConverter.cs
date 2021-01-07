@@ -11,20 +11,23 @@ namespace SliceVisualizer.Configuration
         public ColorConverter() { }
         public override Color FromValue(Value value, object parent)
         {
-            if (value is List list)
+            switch (value)
             {
-                var array = list.Select(FloatConverter.ValueToFloat).ToArray();
-                return new Color(array[0], array[1], array[2], array[3]);
-            }
-            else if (value is Text text)
-            {
-                var color = new Color(1f, 1f, 1f, 1f);
-                ColorUtility.TryParseHtmlString(text.Value, out color);
-                return color;
-            }
-            else
-            {
-                throw new System.ArgumentException("Color deserializer expectes either string or array");
+                case List list:
+                    {
+                        var array = list.Select(FloatConverter.ValueToFloat).ToArray();
+                        return new Color(array[0], array[1], array[2], array[3]);
+                    }
+
+                case Text text:
+                    {
+                        var color = new Color(1f, 1f, 1f, 1f);
+                        ColorUtility.TryParseHtmlString(text.Value, out color);
+                        return color;
+                    }
+
+                default:
+                    throw new System.ArgumentException("Color deserializer expectes either string or array");
             }
         }
 

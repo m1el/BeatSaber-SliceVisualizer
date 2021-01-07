@@ -11,14 +11,16 @@ namespace SliceVisualizer.Configuration
         public VectorConverter() { }
         public override Vector3 FromValue(Value value, object parent)
         {
-            if (value is List list)
+            switch (value)
             {
-                var array = list.Select(FloatConverter.ValueToFloat).ToArray();
-                return new Vector3(array[0], array[1], array[2]);
-            }
-            else
-            {
-                throw new System.ArgumentException("Vector3 deserialization expects list of numbers");
+                case List list:
+                    {
+                        var array = list.Select(FloatConverter.ValueToFloat).ToArray();
+                        return new Vector3(array[0], array[1], array[2]);
+                    }
+
+                default:
+                    throw new System.ArgumentException("Vector3 deserialization expects list of numbers");
             }
         }
 
