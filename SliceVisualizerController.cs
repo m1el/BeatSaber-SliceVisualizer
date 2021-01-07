@@ -39,10 +39,15 @@ namespace SliceVisualizer
         }
         public void Stahp()
         {
+            if (BlockBuffer == null)
+            {
+                return;
+            }
             foreach (var slicedBlock in BlockBuffer)
             {
                 slicedBlock.Cleanup();
             }
+            BlockBuffer = null;
             SpawnController.noteWasCutEvent -= OnNoteCut;
             SpawnController = null;
         }
