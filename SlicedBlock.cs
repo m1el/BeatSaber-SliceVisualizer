@@ -163,30 +163,30 @@ namespace SliceVisualizer
             blockPosition.z = Mathf.Lerp(-config.PopDistance, config.PopDistance, t);
             blockTransform.localPosition = blockPosition;
 
+            // calculate pop strength
+            var popStrength = 0f;
             if (aliveTime < config.PopEnd)
             {
-                var popStrength = InvLerp(config.PopEnd, 0.0f, t);
-                background.color = Fade(Pop(color, popStrength), config.UIOpacity);
+                popStrength = InvLerp(config.PopEnd, 0.0f, t);
                 needsUpdate = true;
             }
-            else if (aliveTime > config.FadeStart)
+
+            // calculate fade out opacity
+            var alpha = config.UIOpacity;
+            if (aliveTime > config.FadeStart)
             {
                 var fadeT = InvLerp(config.FadeStart, 1.0f, t);
-                var fadeAlpha = Mathf.Lerp(1f, 0f, fadeT) * config.UIOpacity;
-                background.color = Fade(color, fadeAlpha);
-                arrow.color = Fade(arrowColor, fadeAlpha * arrowAlpha);
-                circle.color = Fade(config.CenterColor, fadeAlpha);
-                missedArea.color = Fade(missedAreaColor, fadeAlpha);
-                slice.color = Fade(sliceColor, fadeAlpha);
+                alpha *= Mathf.Lerp(1f, 0f, fadeT) * config.UIOpacity;
                 needsUpdate = true;
             }
-            else if (needsUpdate)
+
+            if (needsUpdate)
             {
-                background.color = Fade(color, config.UIOpacity);
-                arrow.color = Fade(arrowColor, arrowAlpha);
-                circle.color = Fade(config.CenterColor, config.UIOpacity);
-                missedArea.color = Fade(missedAreaColor, config.UIOpacity);
-                slice.color = Fade(sliceColor, config.UIOpacity);
+                background.color = Fade(Pop(color, popStrength), alpha);
+                arrow.color = Fade(arrowColor, arrowAlpha * alpha);
+                circle.color = Fade(config.CenterColor, alpha);
+                missedArea.color = Fade(missedAreaColor, alpha);
+                slice.color = Fade(sliceColor, alpha);
                 needsUpdate = false;
             }
         }
