@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
-using ScoreScalingMode = SliceVisualizer.PluginConfig.ScoreScalingMode;
 using System.Collections.Generic;
+using SliceVisualizer.Configuration;
 
 namespace SliceVisualizer
 {

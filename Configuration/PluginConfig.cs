@@ -1,95 +1,14 @@
 using System.Runtime.CompilerServices;
-using IPA.Config.Data;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
-using System.Linq;
 using UnityEngine;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
-namespace SliceVisualizer
+namespace SliceVisualizer.Configuration
 {
-    public class Dummy
+    internal partial class PluginConfig
     {
-        public static float ValueToFloat(Value val)
-        {
-            if (val is FloatingPoint point)
-            {
-                return (float)point.Value;
-            }
-            else if (val is Integer integer)
-            {
-                return integer.Value;
-            }
-            else
-            {
-                throw new System.ArgumentException("List element was not a number");
-            }
-        }
-
-    }
-
-    public class ColorConverter : ValueConverter<Color>
-    {
-        public ColorConverter() { }
-        public override Color FromValue(Value value, object parent)
-        {
-            if (value is List list)
-            {
-                var array = list.Select(Dummy.ValueToFloat).ToArray();
-                return new Color(array[0], array[1], array[2], array[3]);
-            }
-            else if (value is Text text)
-            {
-                var color = new Color(1f, 1f, 1f, 1f);
-                ColorUtility.TryParseHtmlString(text.Value, out color);
-                return color;
-            }
-            else
-            {
-                throw new System.ArgumentException("Color deserializer expectes either string or array");
-            }
-        }
-
-        public override Value ToValue(Color obj, object parent)
-        {
-            Plugin.Log.Info(string.Format("trying to serialize color: {0}", obj));
-            var array = new float[] { obj.r, obj.g, obj.b, obj.a };
-            return Value.From(array.Select(x => Value.Float((decimal)x)));
-        }
-    }
-
-    public class VectorConverter : ValueConverter<Vector3>
-    {
-        public VectorConverter() { }
-        public override Vector3 FromValue(Value value, object parent)
-        {
-            if (value is List list)
-            {
-                var array = list.Select(Dummy.ValueToFloat).ToArray();
-                return new Vector3(array[0], array[1], array[2]);
-            }
-            else
-            {
-                throw new System.ArgumentException("Vector3 deserialization expects list of numbers");
-            }
-        }
-
-        public override Value ToValue(Vector3 obj, object parent)
-        {
-            Plugin.Log.Info(string.Format("trying to serialize vec3: {0}", obj));
-            var array = new float[] { obj.x, obj.y, obj.z };
-            return Value.From(array.Select(x => Value.Float((decimal)x)));
-        }
-    }
-
-    internal class PluginConfig
-    {
-        public enum ScoreScalingMode {
-            Linear,
-            Sqrt,
-            Log,
-        }
         public static PluginConfig Instance { get; set; } = null!;
         public virtual bool Enabled { get; set; } = true;
         public virtual float SliceWidth { get; set; } = 0.05f;
@@ -128,6 +47,8 @@ namespace SliceVisualizer
         public virtual Vector3 CanvasOffset { get; set; } = new Vector3(0f, 0f, 16f);
         public virtual float CanvasScale { get; set; } = 1f;
 
+        #region listeners
+        /*
         /// <summary>
         /// This is called whenever BSIPA reads the config from disk (including when file changes are detected).
         /// </summary>
@@ -154,5 +75,7 @@ namespace SliceVisualizer
             Plugin.Log.Info("copy from not implemented?");
             // This instance's members populated from other
         }
+        */
+        #endregion
     }
 }

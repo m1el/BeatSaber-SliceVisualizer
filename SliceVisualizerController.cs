@@ -1,4 +1,5 @@
 using BS_Utils.Utilities;
+using SliceVisualizer.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
