@@ -27,6 +27,9 @@ This option, when set to `Log` or `Sqrt` allows you to exaggerate small offsets,
 - `ArrowColor` (default: `[1.0, 1.0, 1.0, 1.0]`) -- RGBA color for the arrow image.
 - `BadDirectionColor` (default: `[0.0, 0.0, 0.0, 1.0]`) -- RGBA color for the arrow, in case you cut the note from the wrong side.
 - `CenterColor` (default: `[1.0, 1.0, 1.0, 1.0]`) -- RGBA color for the circle in the center of note.
+- `UseCustomColors` (default: `false`) -- override the in-game colors for notes with the following:
+- `LeftColor` (default: `[0.659, 0.125, 0.125, 1]`) -- Color for left notes.
+- `RightColor` (default: `[0.125, 0.392, 0.659, 1]`) -- Color for right notes.
 - `CubeLifetime` (default: 1.0) -- total lifetime of the visualization in seconds.
 - `PopEnd` (default: 0.1) -- highlight time for the visualization in seconds. set to 0.0 to disable highlighting.
 - `FadeStart` (default: 0.5) -- the time at which the visualization starts to fade out in seconds.
@@ -37,6 +40,7 @@ Set to 0.0 to disable this effect.
 - `CubeScale` (default: 0.9) -- note size for the visualization.
 - `CenterScale` (default: 0.2) -- scale of the circle in the center, relative to note scale.
 - `ArrowScale` (default: 0.6) -- scale of the note arrow, relative to note scale.
+- `UIOpacity` (default: 1.0) -- Overall opacity for the UI.  Multiplicative with opacity/alpha of other colors.
 - `CanvasOffset` (default: `[0.0, 0.0, 16.0]`) -- control `[x, y, z]` position of bottom center point of the visualization canvas.  
 `x` is left to right, `y` is bottom to top, `z` is back to front.
 - `CanvasScale` (default: 1.0) -- Control visualization canvas scaling. This affects note scaling as well.
