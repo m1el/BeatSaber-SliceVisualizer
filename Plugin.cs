@@ -37,13 +37,19 @@ namespace SliceVisualizer
         private void GameSceneLoaded()
         {
             Log.Info("Game scene loaded, probably game start");
-            Controller.DoSomething();
+            if (PluginConfig.Instance.Enabled)
+            {
+                Controller.DoSomething();
+            }
         }
 
         private void MenuSceneLoaded()
         {
             Log.Info("Menu scene loaded, probably game end");
-            Controller.Stahp();
+            if (PluginConfig.Instance.Enabled)
+            {
+                Controller.Stahp();
+            }
         }
 
         [OnStart]

@@ -91,6 +91,7 @@ namespace SliceVisualizer
             Log,
         }
         public static PluginConfig Instance { get; set; }
+        public virtual bool Enabled { get; set; } = true;
         public virtual float SliceWidth { get; set; } = 0.05f;
 
         [UseConverter(typeof(EnumConverter<ScoreScalingMode>))]
