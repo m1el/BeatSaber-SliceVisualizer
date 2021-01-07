@@ -3,6 +3,7 @@ using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
 using UnityEngine;
+using SliceVisualizer.Models;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 namespace SliceVisualizer.Configuration

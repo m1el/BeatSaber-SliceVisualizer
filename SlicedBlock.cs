@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using SliceVisualizer.Configuration;
+using SliceVisualizer.Models;
 
 namespace SliceVisualizer
 {
@@ -305,18 +306,7 @@ namespace SliceVisualizer
         private void SetSliceState(float sliceOffset, float sliceAngle, float cubeRotation, bool directionOk, bool saberTypeOk)
         {
             var config = PluginConfig.Instance;
-            switch (config.ScoreScaling)
-            {
-                case ScoreScalingMode.Linear:
-                    break;
-                case ScoreScalingMode.Log:
-                    sliceOffset = ApplyScaling(sliceOffset, x => Mathf.Log(x));
-                    break;
-                case ScoreScalingMode.Sqrt:
-                    sliceOffset = ApplyScaling(sliceOffset, x => Mathf.Sqrt(x));
-                    break;
-            }
-
+            sliceOffset = config.ScoreScaling.ApplyScaling(sliceOffset, config.ScoreScaleMin, config.ScoreScaleMax);
             sliceOffset = Mathf.Clamp(sliceOffset, -0.5f, 0.5f);
 
             if (saberTypeOk)
@@ -354,19 +344,6 @@ namespace SliceVisualizer
         }
 
 
-        private static float ApplyScaling(float distance, Func<float, float> transform)
-        {
-            var config = PluginConfig.Instance;
-            var sign = Mathf.Sign(distance);
-            distance = Mathf.Abs(distance);
-
-            if (distance < config.ScoreScaleMin) { return 0.0f; }
-            var tMin = transform(config.ScoreScaleMin);
-            var tMax = transform(config.ScoreScaleMax);
-            distance = (transform(distance) - tMin) / (tMax - tMin);
-
-            return distance * sign;
-        }
         public void Dispose()
         {
             SetActive(false);

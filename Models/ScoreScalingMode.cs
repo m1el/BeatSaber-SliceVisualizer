@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using IPA.Config.Stores;
 
-namespace SliceVisualizer.Configuration
+namespace SliceVisualizer.Models
 {
     public enum ScoreScalingMode
     {
@@ -9,4 +9,5 @@ namespace SliceVisualizer.Configuration
         Sqrt,
         Log,
     }
+
 }
