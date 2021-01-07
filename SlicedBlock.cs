@@ -9,16 +9,16 @@ namespace SliceVisualizer
 
     internal class SlicedBlock : IDisposable
     {
-        private GameObject gameObject;
-        private Transform blockTransform;
-        private Transform sliceTransform;
-        private Transform missedAreaTransform;
-        private Transform sliceGroupTransform;
-        private SpriteRenderer background;
-        private SpriteRenderer arrow;
-        private SpriteRenderer circle;
-        private SpriteRenderer missedArea;
-        private SpriteRenderer slice;
+        private readonly GameObject gameObject;
+        private readonly Transform blockTransform;
+        private readonly Transform sliceTransform;
+        private readonly Transform missedAreaTransform;
+        private readonly Transform sliceGroupTransform;
+        private readonly SpriteRenderer background;
+        private readonly SpriteRenderer arrow;
+        private readonly SpriteRenderer circle;
+        private readonly SpriteRenderer missedArea;
+        private readonly SpriteRenderer slice;
         private bool isDirectional;
         private float aliveTime;
         private Color color;
@@ -199,6 +199,7 @@ namespace SliceVisualizer
             this.isActive = isActive;
             var config = PluginConfig.Instance;
             blockTransform.localScale = Vector3.one * (isActive ? config.CubeScale : 0f);
+            gameObject.SetActive(isActive);
             background.gameObject.SetActive(isActive);
             arrow.gameObject.SetActive(isActive);
             circle.gameObject.SetActive(isActive);
@@ -229,7 +230,7 @@ namespace SliceVisualizer
 
             var noteData = noteController.noteData;
             // Extract cube rotation from actual cube rotation
-            var cubeRotation = 0f;
+            float cubeRotation;
             if (config.RotationFromCubeTransform)
             {
                 cubeRotation = noteController.noteTransform.localRotation.eulerAngles.z;
@@ -320,14 +321,7 @@ namespace SliceVisualizer
                 sliceColor = otherColor;
             }
 
-            if (directionOk)
-            {
-                arrowColor = config.ArrowColor;
-            }
-            else
-            {
-                arrowColor = config.BadDirectionColor;
-            }
+            arrowColor = directionOk ? config.ArrowColor : config.BadDirectionColor;
 
             missedArea.color = missedAreaColor;
             slice.color = sliceColor;
