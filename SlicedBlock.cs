@@ -308,7 +308,6 @@ namespace SliceVisualizer
         {
             var config = PluginConfig.Instance;
             sliceOffset = config.ScoreScaling.ApplyScaling(sliceOffset, config.ScoreScaleMin, config.ScoreScaleMax);
-            sliceOffset = Mathf.Clamp(sliceOffset, -0.5f, 0.5f);
 
             if (saberTypeOk)
             {

@@ -12,6 +12,7 @@ namespace SliceVisualizer.Models
 
             if (distance < min)
             { return 0.0f; }
+
             var tMin = transform(min);
             var tMax = transform(max);
             distance = (transform(distance) - tMin) / (tMax - tMin);
@@ -33,7 +34,7 @@ namespace SliceVisualizer.Models
                     break;
             }
 
-            return offset;
+            return Mathf.Clamp(offset, -0.5f, 0.5f);
         }
     }
 
