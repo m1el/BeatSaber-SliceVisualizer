@@ -16,8 +16,8 @@ namespace SliceVisualizer
     {
         // private static int SortingLayerID = 777;
         private static IPALogger Log = null!;
+        private static readonly int maxItems = 12;
         private SlicedBlock[]? BlockBuffer;
-        private int maxItems = 12;
         private BeatmapObjectManager? SpawnController;
         private ColorManager MyColorManager = null!;
         public SliceVisualizerController(IPALogger logger)
@@ -36,7 +36,7 @@ namespace SliceVisualizer
             SpawnController.noteWasCutEvent += OnNoteCut;
             MyColorManager = GameObject.FindObjectOfType<ColorManager>();
             Build();
-            Log.Info("created something?");
+            Log.Info("Built visualizer scene");
         }
         public void Stahp()
         {
@@ -98,12 +98,13 @@ namespace SliceVisualizer
 
         private void OnNoteCut(NoteController noteController, NoteCutInfo info)
         {
+            Plugin.Log.Info("on note cut 1?");
             if (BlockBuffer == null || BlockBuffer.Length == 0) { return; }
 
             // Re-use cubes at the same column&layer to avoid UI cluttering
             var blockIndex = noteController.noteData.lineIndex + 4 * (int)noteController.noteData.noteLineLayer;
-            Color color = MyColorManager.ColorForSaberType(info.saberType);
-            Color otherCoor = MyColorManager.ColorForSaberType(OtherSaber(info.saberType));
+            var color = MyColorManager.ColorForSaberType(info.saberType);
+            var otherCoor = MyColorManager.ColorForSaberType(OtherSaber(info.saberType));
             var slicedBlock = BlockBuffer[blockIndex];
             slicedBlock.SetState(noteController, info, color, otherCoor);
         }

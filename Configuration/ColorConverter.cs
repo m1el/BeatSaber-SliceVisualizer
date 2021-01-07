@@ -4,7 +4,6 @@ using IPA.Config.Stores;
 using System.Linq;
 using UnityEngine;
 
-[assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 namespace SliceVisualizer.Configuration
 {
     public class ColorConverter : ValueConverter<Color>
@@ -31,7 +30,6 @@ namespace SliceVisualizer.Configuration
 
         public override Value ToValue(Color obj, object parent)
         {
-            Plugin.Log.Info(string.Format("trying to serialize color: {0}", obj));
             var array = new float[] { obj.r, obj.g, obj.b, obj.a };
             return Value.From(array.Select(x => Value.Float((decimal)x)));
         }

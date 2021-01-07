@@ -37,7 +37,7 @@ namespace SliceVisualizer
 
         private void GameSceneLoaded()
         {
-            Log.Info("Game scene loaded, probably game start");
+            Log.Info(string.Format("Game scene loaded, probably game start. Plugin enabled: {0}", PluginConfig.Instance.Enabled));
             if (PluginConfig.Instance.Enabled)
             {
                 Controller.DoSomething();
