@@ -197,6 +197,7 @@ namespace SliceVisualizer
             circle.gameObject.SetActive(isActive);
             missedArea.gameObject.SetActive(isActive);
             slice.gameObject.SetActive(isActive);
+            this.needsUpdate = isActive;
         }
         public void SetState(NoteController noteController, NoteCutInfo info, Color color, Color otherColor)
         {
@@ -242,6 +243,19 @@ namespace SliceVisualizer
                 var positionOffset = new Vector2(-1.5f, 1.5f);
                 cubeX = noteData.lineIndex + positionOffset.x;
                 cubeY = (int)noteData.noteLineLayer + positionOffset.y;
+            }
+
+            if (config.UseCustomColors)
+            {
+                color = config.RightColor;
+                otherColor = config.LeftColor;
+
+                if (noteData.colorType == ColorType.ColorB)
+                {
+                    var tmp = color;
+                    color = otherColor;
+                    otherColor = tmp;
+                }
             }
 
             var isDirectional = DirectionToRotation.ContainsKey(noteData.cutDirection);
