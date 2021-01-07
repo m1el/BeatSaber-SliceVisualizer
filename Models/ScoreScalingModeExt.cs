@@ -22,17 +22,15 @@ namespace SliceVisualizer.Models
 
         public static float ApplyScaling(this ScoreScalingMode mode, float offset, float min, float max)
         {
-            switch (mode)
+            Func<float, float> transform = mode switch
             {
-                case ScoreScalingMode.Linear:
-                    break;
-                case ScoreScalingMode.Log:
-                    offset = ApplyScalingFunction(offset, min, max, x => Mathf.Log(x));
-                    break;
-                case ScoreScalingMode.Sqrt:
-                    offset = ApplyScalingFunction(offset, min, max, x => Mathf.Sqrt(x));
-                    break;
-            }
+                ScoreScalingMode.Linear => (x => x),
+                ScoreScalingMode.Log => Mathf.Log,
+                ScoreScalingMode.Sqrt => Mathf.Sqrt,
+                _ => (x => x),
+            };
+
+            offset = ApplyScalingFunction(offset, min, max, transform);
 
             return Mathf.Clamp(offset, -0.5f, 0.5f);
         }

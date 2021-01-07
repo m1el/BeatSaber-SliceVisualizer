@@ -8,18 +8,12 @@ namespace SliceVisualizer.Configuration
     {
         public static float ValueToFloat(Value val)
         {
-            if (val is FloatingPoint point)
+            return val switch
             {
-                return (float)point.Value;
-            }
-            else if (val is Integer integer)
-            {
-                return integer.Value;
-            }
-            else
-            {
-                throw new System.ArgumentException("List element was not a number");
-            }
+                FloatingPoint point => (float) point.Value,
+                Integer integer => integer.Value,
+                _ => throw new System.ArgumentException("List element was not a number"),
+            };
         }
     }
 }
