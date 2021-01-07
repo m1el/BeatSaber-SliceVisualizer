@@ -121,6 +121,7 @@ namespace SliceVisualizer
         public virtual float CubeScale { get; set; } = 0.9f;
         public virtual float CenterScale { get; set; } = 0.2f;
         public virtual float ArrowScale { get; set; } = 0.6f;
+        public virtual float UIOpacity { get; set; } = 1.0f;
         [UseConverter(typeof(VectorConverter))]
         public virtual Vector3 CanvasOffset { get; set; } = new Vector3(0f, 0f, 16f);
         public virtual float CanvasScale { get; set; } = 1f;

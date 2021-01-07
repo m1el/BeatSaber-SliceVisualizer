@@ -159,20 +159,20 @@ namespace SliceVisualizer
 
             var t = aliveTime / config.CubeLifetime;
             var blockPosition = blockTransform.localPosition;
-            var arrowAlpha = isDirectional ? 1f : 0f;
+            var arrowAlpha = (isDirectional ? 1f : 0f) * config.UIOpacity;
             blockPosition.z = Mathf.Lerp(-config.PopDistance, config.PopDistance, t);
             blockTransform.localPosition = blockPosition;
 
-            if (t < config.PopEnd)
+            if (aliveTime < config.PopEnd)
             {
                 var popStrength = InvLerp(config.PopEnd, 0.0f, t);
-                background.color = Pop(color, popStrength);
+                background.color = Fade(Pop(color, popStrength), config.UIOpacity);
                 needsUpdate = true;
             }
-            else if (t > config.FadeStart)
+            else if (aliveTime > config.FadeStart)
             {
                 var fadeT = InvLerp(config.FadeStart, 1.0f, t);
-                var fadeAlpha = Mathf.Lerp(1f, 0f, fadeT);
+                var fadeAlpha = Mathf.Lerp(1f, 0f, fadeT) * config.UIOpacity;
                 background.color = Fade(color, fadeAlpha);
                 arrow.color = Fade(arrowColor, fadeAlpha * arrowAlpha);
                 circle.color = Fade(config.CenterColor, fadeAlpha);
@@ -182,11 +182,11 @@ namespace SliceVisualizer
             }
             else if (needsUpdate)
             {
-                background.color = color;
+                background.color = Fade(color, config.UIOpacity);
                 arrow.color = Fade(arrowColor, arrowAlpha);
-                circle.color = config.CenterColor;
-                missedArea.color = missedAreaColor;
-                slice.color = sliceColor;
+                circle.color = Fade(config.CenterColor, config.UIOpacity);
+                missedArea.color = Fade(missedAreaColor, config.UIOpacity);
+                slice.color = Fade(sliceColor, config.UIOpacity);
                 needsUpdate = false;
             }
         }
