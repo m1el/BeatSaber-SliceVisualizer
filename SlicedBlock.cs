@@ -359,7 +359,6 @@ namespace SliceVisualizer
         public void Update(float delta = 0f)
         {
             var config = PluginConfig.Instance;
-            Plugin.Log.Info("slicedblock::update");
             if (!isActive) { return; }
             aliveTime += delta;
             if (aliveTime > config.CubeLifetime)
