@@ -19,7 +19,9 @@ namespace SliceVisualizer.Models
             offset = Mathf.Abs(offset);
 
             if (offset < min)
-            { return 0.0f; }
+            {
+                return 0.0f;
+            }
 
             var tMin = transform(min);
             var tMax = transform(max);
