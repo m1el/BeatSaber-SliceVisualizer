@@ -9,7 +9,7 @@ using SliceVisualizer.Installers;
 
 namespace SliceVisualizer
 {
-    [Plugin(RuntimeOptions.SingleStartInit)]
+    [Plugin(RuntimeOptions.DynamicInit)]
     public class Plugin
     {
         /// <summary>
