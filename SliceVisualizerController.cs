@@ -97,8 +97,8 @@ namespace SliceVisualizer
 
         private void OnNoteCut(NoteController noteController, NoteCutInfo info)
         {
-            Plugin.Log.Info("on note cut 1?");
-            if (BlockBuffer == null || BlockBuffer.Length == 0) { return; }
+            if (BlockBuffer == null || BlockBuffer.Length == 0)
+            { return; }
 
             // Re-use cubes at the same column&layer to avoid UI cluttering
             var blockIndex = noteController.noteData.lineIndex + 4 * (int)noteController.noteData.noteLineLayer;
