@@ -1,73 +1,33 @@
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
+using SiraUtil.Zenject;
 using UnityEngine;
 using SliceVisualizer.Configuration;
-using IPALogger = IPA.Logging.Logger;
+using SliceVisualizer.Installers;
+
 
 namespace SliceVisualizer
 {
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        internal static Plugin Instance { get; private set; } = null!;
-        internal static SliceVisualizerController Controller = null!;
-        internal static GameObject ControllerObj = null!;
-        internal static IPALogger Log { get; private set; } = null!;
-
-        [Init]
         /// <summary>
         /// Called when the plugin is first loaded by IPA (either when the game starts or when the plugin is enabled if it starts disabled).
         /// [Init] methods that use a Constructor or called before regular methods like InitWithConfig.
         /// Only use [Init] with one Constructor.
         /// </summary>
-        public void Init(Config conf, IPALogger logger)
+        [Init]
+        public void Init(Logger logger, Config conf, Zenjector zenject)
         {
-            Instance = this;
-            Log = logger;
-            Assets.Init(logger);
-            Controller = new SliceVisualizerController(logger);
-
-            Log.Info("SliceVisualizer initialized.");
-
-            PluginConfig.Instance = conf.Generated<PluginConfig>();
-
-            Log.Debug("Config loaded");
+            zenject.OnApp<NsvAppInstaller>().WithParameters(logger, conf.Generated<PluginConfig>());
+            zenject.OnGame<NsvGameInstaller>(false).ShortCircuitForTutorial();
         }
 
-        private void GameSceneLoaded()
+        [OnEnable, OnDisable]
+        public void OnStateChanged()
         {
-            Log.Info(string.Format("Game scene loaded, probably game start. Plugin enabled: {0}", PluginConfig.Instance.Enabled));
-            if (PluginConfig.Instance.Enabled)
-            {
-                Controller.DoSomething();
-            }
-        }
-
-        private void MenuSceneLoaded()
-        {
-            Log.Info("Menu scene loaded, probably game end");
-            Controller.Stahp();
-        }
-
-        [OnStart]
-        public void OnApplicationStart()
-        {
-            Log.Debug("OnApplicationStart");
-            BS_Utils.Utilities.BSEvents.gameSceneLoaded += GameSceneLoaded;
-            BS_Utils.Utilities.BSEvents.menuSceneLoaded += MenuSceneLoaded;
-            ControllerObj = new GameObject("SliceVisualizerController");
-            Controller = ControllerObj.AddComponent<SliceVisualizerController>();
-            ControllerObj.SetActive(true);
-        }
-
-        [OnExit]
-        public void OnApplicationQuit()
-        {
-            ControllerObj.SetActive(false);
-            BS_Utils.Utilities.BSEvents.menuSceneLoaded -= MenuSceneLoaded;
-            BS_Utils.Utilities.BSEvents.gameSceneLoaded -= GameSceneLoaded;
-            Log.Debug("OnApplicationQuit");
+            // Zenject is poggers
         }
     }
 }

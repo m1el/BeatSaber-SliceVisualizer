@@ -1,6 +1,4 @@
-using System.Runtime.CompilerServices;
 using IPA.Config.Data;
-using IPA.Config.Stores;
 
 namespace SliceVisualizer.Configuration
 {

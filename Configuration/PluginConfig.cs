@@ -2,13 +2,14 @@ using System.Runtime.CompilerServices;
 using IPA.Config.Stores;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
+using SiraUtil.Converters;
 using UnityEngine;
 using SliceVisualizer.Models;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 namespace SliceVisualizer.Configuration
 {
-    internal partial class PluginConfig
+    internal class PluginConfig
     {
         public static PluginConfig Instance { get; set; } = null!;
         public virtual bool Enabled { get; set; } = true;
@@ -44,39 +45,8 @@ namespace SliceVisualizer.Configuration
         public virtual float CenterScale { get; set; } = 0.2f;
         public virtual float ArrowScale { get; set; } = 0.6f;
         public virtual float UIOpacity { get; set; } = 1.0f;
-        [UseConverter(typeof(VectorConverter))]
+        [UseConverter(typeof(Vector3Converter))]
         public virtual Vector3 CanvasOffset { get; set; } = new Vector3(0f, 0f, 16f);
         public virtual float CanvasScale { get; set; } = 1f;
-
-        #region listeners
-        /*
-        /// <summary>
-        /// This is called whenever BSIPA reads the config from disk (including when file changes are detected).
-        /// </summary>
-        public virtual void OnReload()
-        {
-            Plugin.Log.Info("congfig onreload");
-            // Do stuff after config is read from disk.
-        }
-
-        /// <summary>
-        /// Call this to force BSIPA to update the config file. This is also called by BSIPA if it detects the file was modified.
-        /// </summary>
-        public virtual void Changed()
-        {
-            Plugin.Log.Info("config changed");
-            // Do stuff when the config is changed.
-        }
-
-        /// <summary>
-        /// Call this to have BSIPA copy the values from <paramref name="other"/> into this config.
-        /// </summary>
-        public virtual void CopyFrom(PluginConfig other)
-        {
-            Plugin.Log.Info("copy from not implemented?");
-            // This instance's members populated from other
-        }
-        */
-        #endregion
     }
 }
