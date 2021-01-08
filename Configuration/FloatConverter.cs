@@ -2,7 +2,7 @@ using IPA.Config.Data;
 
 namespace SliceVisualizer.Configuration
 {
-    public class FloatConverter
+    internal static class FloatConverter
     {
         public static float ValueToFloat(Value val)
         {

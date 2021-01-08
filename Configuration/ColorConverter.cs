@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SliceVisualizer.Configuration
 {
-    public class ColorConverter : ValueConverter<Color>
+    internal class ColorConverter : ValueConverter<Color>
     {
         public override Color FromValue(Value value, object parent)
         {
