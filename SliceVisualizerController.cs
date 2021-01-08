@@ -87,13 +87,12 @@ namespace SliceVisualizer
 
 
         private static SaberType OtherSaber(SaberType saber) {
-            switch (saber)
+            return saber switch
             {
-                case SaberType.SaberA: return SaberType.SaberB;
-                case SaberType.SaberB: return SaberType.SaberA;
-            }
-
-            throw new System.ArgumentException(string.Format("Invalid saber type: {0}!", saber));
+                SaberType.SaberA => SaberType.SaberB,
+                SaberType.SaberB => SaberType.SaberA,
+                _ => throw new System.ArgumentException(string.Format("Invalid saber type: {0}!", saber)),
+            };
         }
 
         private void OnNoteCut(NoteController noteController, NoteCutInfo info)
