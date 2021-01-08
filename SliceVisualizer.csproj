@@ -75,10 +75,6 @@
           <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
           <Private>false</Private>
       </Reference>
-      <Reference Include="BS_Utils">
-          <HintPath>$(BeatSaberDir)\Plugins\BS_Utils.dll</HintPath>
-          <Private>false</Private>
-      </Reference>
       <Reference Include="SiraUtil">
           <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
           <Private>false</Private>
