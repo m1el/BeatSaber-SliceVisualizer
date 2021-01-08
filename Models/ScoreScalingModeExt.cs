@@ -5,21 +5,6 @@ namespace SliceVisualizer.Models
 {
     public static class ScoreScalingModeExt
     {
-        private static float ApplyScalingFunction(float distance, float min, float max, Func<float, float> transform)
-        {
-            var sign = Mathf.Sign(distance);
-            distance = Mathf.Abs(distance);
-
-            if (distance < min)
-            { return 0.0f; }
-
-            var tMin = transform(min);
-            var tMax = transform(max);
-            distance = (transform(distance) - tMin) / (tMax - tMin);
-
-            return distance * sign;
-        }
-
         public static float ApplyScaling(this ScoreScalingMode mode, float offset, float min, float max)
         {
             Func<float, float> transform = mode switch
@@ -30,10 +15,17 @@ namespace SliceVisualizer.Models
                 _ => (x => x),
             };
 
-            offset = ApplyScalingFunction(offset, min, max, transform);
+            var sign = Mathf.Sign(offset);
+            offset = Mathf.Abs(offset);
 
-            return Mathf.Clamp(offset, -0.5f, 0.5f);
+            if (offset < min)
+            { return 0.0f; }
+
+            var tMin = transform(min);
+            var tMax = transform(max);
+            offset = (transform(offset) - tMin) / (tMax - tMin);
+
+            return Mathf.Clamp(sign * offset, -0.5f, 0.5f);
         }
     }
-
 }
