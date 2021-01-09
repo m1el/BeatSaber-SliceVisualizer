@@ -21,7 +21,7 @@ namespace SliceVisualizer.Installers
                 return;
             }
 
-            Container.BindMemoryPool<NsvSlicedBlock, NsvSlicedBlock.Pool>().WithInitialSize(8).WithMaxSize(12).FromFactory<NsvBlockFactory>();
+            Container.BindFactory<NsvSlicedBlock, NsvBlockFactory>().AsSingle();
             Container.BindInterfacesAndSelfTo<NsvController>().AsSingle();
         }
     }

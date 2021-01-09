@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using SliceVisualizer.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,20 +10,19 @@ namespace SliceVisualizer.Core
     {
         private readonly PluginConfig _config;
         private readonly BeatmapObjectManager _beatmapObjectManager;
-        private readonly NsvSlicedBlock.Pool _slicedBlockPool;
+        private readonly NsvSlicedBlock[] _slicedBlockPool;
+        private readonly Factories.NsvBlockFactory _blockFactory;
 
-        private readonly Dictionary<int, NsvSlicedBlock> _activeSlicedBlocks;
-        private readonly Queue<int> _activeSlicedBlocksRemovalQueue;
         private GameObject _canvasGO = null!;
 
-        public NsvController(PluginConfig config, BeatmapObjectManager beatmapObjectManager, NsvSlicedBlock.Pool slicedBlockPool)
+        private static readonly int MaxItems = 12;
+
+        public NsvController(PluginConfig config, BeatmapObjectManager beatmapObjectManager, Factories.NsvBlockFactory blockFactory)
         {
             _config = config;
             _beatmapObjectManager = beatmapObjectManager;
-            _slicedBlockPool = slicedBlockPool;
-
-            _activeSlicedBlocks = new Dictionary<int, NsvSlicedBlock>();
-            _activeSlicedBlocksRemovalQueue = new Queue<int>();
+            _slicedBlockPool = new NsvSlicedBlock[MaxItems];
+            _blockFactory = blockFactory;
         }
 
         public void Initialize()
@@ -35,26 +33,24 @@ namespace SliceVisualizer.Core
 
             _canvasGO.transform.localScale = Vector3.one * _config.CanvasScale;
             _canvasGO.transform.localPosition = _config.CanvasOffset;
-
             _beatmapObjectManager.noteWasCutEvent += OnNoteCut;
+
+            for (var i = 0; i < MaxItems; i++)
+            {
+                _slicedBlockPool[i] = _blockFactory.Create();
+                _slicedBlockPool[i].Init(_canvasGO.transform);
+            }
         }
 
         public void Tick()
         {
             var delta = Time.deltaTime;
-            foreach (var kvp in _activeSlicedBlocks)
+            foreach (var slicedBlock in _slicedBlockPool)
             {
-                if (kvp.Value.ExternalUpdate(delta))
+                if (slicedBlock.isActive)
                 {
-                    _activeSlicedBlocksRemovalQueue.Enqueue(kvp.Key);
+                    slicedBlock.ExternalUpdate(delta);
                 }
-            }
-
-            while (_activeSlicedBlocksRemovalQueue.Count > 0)
-            {
-                var key = _activeSlicedBlocksRemovalQueue.Dequeue();
-                _slicedBlockPool.Despawn(_activeSlicedBlocks[key]);
-                _activeSlicedBlocks.Remove(key);
             }
         }
 
@@ -62,12 +58,10 @@ namespace SliceVisualizer.Core
         {
             _beatmapObjectManager.noteWasCutEvent -= OnNoteCut;
 
-            foreach (var slicedBlock in _activeSlicedBlocks.Values)
+            foreach (var slicedBlock in _slicedBlockPool)
             {
-                _slicedBlockPool.Despawn(slicedBlock);
+                slicedBlock.Dispose();
             }
-
-            _activeSlicedBlocks.Clear();
         }
 
         private void OnNoteCut(NoteController noteController, NoteCutInfo noteCutInfo)
@@ -75,13 +69,7 @@ namespace SliceVisualizer.Core
             // Re-use cubes at the same column & layer to avoid UI cluttering
             var noteData = noteController.noteData;
             var blockIndex = noteData.lineIndex + 4 * (int) noteData.noteLineLayer;
-            if (!_activeSlicedBlocks.TryGetValue(blockIndex, out var slicedBlock))
-            {
-                slicedBlock = _slicedBlockPool.Spawn();
-                slicedBlock.Init((_canvasGO.transform as RectTransform)!);
-                _activeSlicedBlocks.Add(blockIndex, slicedBlock);
-            }
-
+            var slicedBlock = _slicedBlockPool[blockIndex];
             slicedBlock.SetData(noteController, noteCutInfo, noteData);
         }
     }

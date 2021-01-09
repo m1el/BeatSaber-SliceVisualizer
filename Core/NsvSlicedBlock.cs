@@ -1,3 +1,4 @@
+using System;
 using SliceVisualizer.Configuration;
 using SliceVisualizer.Models;
 using UnityEngine;
@@ -6,7 +7,7 @@ using Zenject;
 
 namespace SliceVisualizer.Core
 {
-    internal class NsvSlicedBlock : MonoBehaviour
+    internal class NsvSlicedBlock : MonoBehaviour, IDisposable
     {
         private PluginConfig _config = null!;
         private ColorManager _colorManager = null!;
@@ -23,6 +24,7 @@ namespace SliceVisualizer.Core
 
         private float _aliveTime;
         private bool _isDirectional;
+        public bool isActive { get; private set; }
         private Color _color;
         private Color _saberColor;
         private Color _arrowColor;
@@ -198,9 +200,11 @@ namespace SliceVisualizer.Core
                     _slice = slice;
                 }
             }
+
+            SetActive(false);
         }
 
-        internal void Init(RectTransform parent)
+        internal void Init(Transform parent)
         {
             gameObject.GetComponent<RectTransform>().SetParent(parent);
         }
@@ -217,6 +221,7 @@ namespace SliceVisualizer.Core
             SetCubeState(noteController, noteCutInfo, noteData, cubeRotation);
 
             SetSliceState(noteController, noteCutInfo, cubeRotation);
+            SetActive(true);
         }
 
         private void SetCubeState(NoteController noteController, NoteCutInfo noteCutInfo, NoteData noteData, float cubeRotation)
@@ -307,14 +312,12 @@ namespace SliceVisualizer.Core
             _sliceTransform.localPosition = new Vector3(sliceOffset - _config.SliceWidth * 0.5f, -0.5f, 0f);
         }
 
-        /// <returns>
-        ///	Returns a boolean indicating whether it should be removed from the active tracking pool or not.
-        /// </returns>
         internal bool ExternalUpdate(float delta = 0f)
         {
             _aliveTime += delta;
             if (_aliveTime > _config.CubeLifetime)
             {
+                SetActive(false);
                 return true;
             }
 
@@ -350,7 +353,6 @@ namespace SliceVisualizer.Core
                 _slice.color = Fade(_sliceColor, alpha);
                 _needsUpdate = false;
             }
-
             return false;
         }
 
@@ -370,13 +372,25 @@ namespace SliceVisualizer.Core
             return color * (1.0f - amount) + amount * Color.white;
         }
 
-        internal class Pool : MemoryPool<NsvSlicedBlock>
+        public void SetActive(bool isActive)
         {
-            protected override void OnCreated(NsvSlicedBlock item) => item.gameObject.SetActive(false);
+            this.isActive = isActive;
+            gameObject.SetActive(isActive);
+            _background.gameObject.SetActive(isActive);
+            _arrow.gameObject.SetActive(isActive);
+            _circle.gameObject.SetActive(isActive);
+            _missedArea.gameObject.SetActive(isActive);
+            _slice.gameObject.SetActive(isActive);
+        }
 
-            protected override void OnSpawned(NsvSlicedBlock item) => item.gameObject.SetActive(true);
-
-            protected override void OnDespawned(NsvSlicedBlock item) => item.gameObject.SetActive(false);
+        public void Dispose()
+        {
+            SetActive(false);
+            _background = null!;
+            _arrow = null!;
+            _circle = null!;
+            _missedArea = null!;
+            _slice = null!;
         }
     }
 }
