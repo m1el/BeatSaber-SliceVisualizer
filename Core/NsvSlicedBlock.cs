@@ -24,7 +24,7 @@ namespace SliceVisualizer.Core
         private float _aliveTime;
         private bool _isDirectional;
         private Color _color;
-        private Color _otherColor;
+        private Color _saberColor;
         private Color _arrowColor;
         private Color _missedAreaColor;
         private Color _sliceColor;
@@ -244,13 +244,13 @@ namespace SliceVisualizer.Core
             if (_config.UseCustomColors)
             {
                 _color = noteData.colorType == ColorType.ColorA ? _config.LeftColor : _config.RightColor;
-                _otherColor = noteData.colorType != ColorType.ColorA ? _config.LeftColor : _config.RightColor;
+                _saberColor = noteData.colorType != ColorType.ColorA ? _config.LeftColor : _config.RightColor;
             }
             else
             {
                 // This should work due to colors of both type A and B match for their respective saber and blocks
                 _color = _colorManager.ColorForType(noteData.colorType);
-                _otherColor = _colorManager.ColorForSaberType(noteCutInfo.saberType);
+                _saberColor = _colorManager.ColorForSaberType(noteCutInfo.saberType);
             }
 
             _background.color = _color;
@@ -287,8 +287,8 @@ namespace SliceVisualizer.Core
             }
             else
             {
-                _missedAreaColor = _otherColor;
-                _sliceColor = _otherColor;
+                _missedAreaColor = _saberColor;
+                _sliceColor = _saberColor;
             }
 
             _arrowColor = noteCutInfo.directionOK ? _config.ArrowColor : _config.BadDirectionColor;
