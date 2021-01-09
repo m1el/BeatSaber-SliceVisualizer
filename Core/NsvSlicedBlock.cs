@@ -244,7 +244,7 @@ namespace SliceVisualizer.Core
             if (_config.UseCustomColors)
             {
                 _color = noteData.colorType == ColorType.ColorA ? _config.LeftColor : _config.RightColor;
-                _saberColor = noteData.colorType != ColorType.ColorA ? _config.LeftColor : _config.RightColor;
+                _saberColor = noteCutInfo.saberType == SaberType.SaberA ? _config.LeftColor : _config.RightColor;
             }
             else
             {
