@@ -9,7 +9,6 @@ namespace SliceVisualizer.Core
     internal class NsvSlicedBlock : MonoBehaviour
     {
         private PluginConfig _config = null!;
-        private NsvAssetLoader _assetLoader = null!;
         private ColorManager _colorManager = null!;
 
         private Transform _blockTransform = null!;
@@ -35,13 +34,12 @@ namespace SliceVisualizer.Core
         internal void Construct(PluginConfig config, NsvAssetLoader assetLoader, ColorManager colorManager)
         {
             _colorManager = colorManager;
-            _assetLoader = assetLoader;
             _config = config;
 
-            BuildNote();
+            BuildNote(assetLoader);
         }
 
-        private void BuildNote()
+        private void BuildNote(NsvAssetLoader assetLoader)
         {
             /*
              * The hierarchy is the following:
@@ -86,18 +84,18 @@ namespace SliceVisualizer.Core
                 var backgroundGO = new GameObject("RoundRect");
                 var background = backgroundGO.AddComponent<SpriteRenderer>();
                 var backgroundTransform = backgroundGO.AddComponent<RectTransform>();
-                background.material = _assetLoader.UINoGlowMaterial;
+                background.material = assetLoader.UINoGlowMaterial;
                 // background.color = new Color(1.0f, 0.5f, 0.5f, 1.0f);
                 // background.sortingLayerID = SortingLayerID;
                 background.sortingOrder = -4;
                 backgroundTransform.SetParent(_blockTransform);
                 backgroundTransform.localScale = Vector3.one;
                 backgroundTransform.localRotation = Quaternion.identity;
-                if (_assetLoader.RRect != null)
+                if (assetLoader.RRect != null)
                 {
-                    background.sprite = _assetLoader.RRect;
-                    var halfWidth = _assetLoader.RRect.rect.width / _assetLoader.RRect.pixelsPerUnit / 2.0f;
-                    var halfHeight = _assetLoader.RRect.rect.height / _assetLoader.RRect.pixelsPerUnit / 2.0f;
+                    background.sprite = assetLoader.RRect;
+                    var halfWidth = assetLoader.RRect.rect.width / assetLoader.RRect.pixelsPerUnit / 2.0f;
+                    var halfHeight = assetLoader.RRect.rect.height / assetLoader.RRect.pixelsPerUnit / 2.0f;
                     backgroundTransform.localPosition = new Vector3(-halfWidth, -halfHeight, 0f);
                 }
 
@@ -109,16 +107,16 @@ namespace SliceVisualizer.Core
                 var circleGO = new GameObject("Circle");
                 var circle = circleGO.AddComponent<SpriteRenderer>();
                 var circleTransform = circleGO.AddComponent<RectTransform>();
-                circle.material = _assetLoader.UINoGlowMaterial;
+                circle.material = assetLoader.UINoGlowMaterial;
                 circle.color = _config.CenterColor;
                 // circle.sortingLayerID = SortingLayerID;
                 circle.sortingOrder = -3;
                 circleTransform.SetParent(_blockTransform);
                 circleTransform.localScale = Vector3.one * _config.CenterScale;
                 circleTransform.localRotation = Quaternion.identity;
-                if (_assetLoader.Circle != null)
+                if (assetLoader.Circle != null)
                 {
-                    var sprite = _assetLoader.Circle;
+                    var sprite = assetLoader.Circle;
                     circle.sprite = sprite;
                     var halfWidth = _config.ArrowScale * sprite.rect.width / sprite.pixelsPerUnit / 2.0f;
                     var centerOffset = halfWidth - _config.ArrowScale * sprite.rect.height / sprite.pixelsPerUnit;
@@ -133,16 +131,16 @@ namespace SliceVisualizer.Core
                 var arrowGO = new GameObject("Arrow");
                 var arrow = arrowGO.AddComponent<SpriteRenderer>();
                 var arrowTransform = arrowGO.AddComponent<RectTransform>();
-                arrow.material = _assetLoader.UINoGlowMaterial;
+                arrow.material = assetLoader.UINoGlowMaterial;
                 arrow.color = _config.ArrowColor;
                 // arrow.sortingLayerID = SortingLayerID;
                 arrow.sortingOrder = -2;
                 arrowTransform.SetParent(_blockTransform);
                 arrowTransform.localScale = Vector3.one * _config.ArrowScale;
                 arrowTransform.localRotation = Quaternion.identity;
-                if (_assetLoader.Arrow != null)
+                if (assetLoader.Arrow != null)
                 {
-                    var sprite = _assetLoader.Arrow;
+                    var sprite = assetLoader.Arrow;
                     arrow.sprite = sprite;
                     var halfWidth = _config.ArrowScale * sprite.rect.width / sprite.pixelsPerUnit / 2.0f;
                     var centerOffset = halfWidth - _config.ArrowScale * sprite.rect.height / sprite.pixelsPerUnit;
@@ -167,8 +165,8 @@ namespace SliceVisualizer.Core
                     var missedAreaGO = new GameObject("MissedArea");
                     var missedArea = missedAreaGO.AddComponent<SpriteRenderer>();
                     var missedAreaTransform = missedAreaGO.AddComponent<RectTransform>();
-                    missedArea.material = _assetLoader.UINoGlowMaterial;
-                    missedArea.sprite = _assetLoader.White;
+                    missedArea.material = assetLoader.UINoGlowMaterial;
+                    missedArea.sprite = assetLoader.White;
                     missedArea.color = _config.MissedAreaColor;
                     // missedArea.sortingLayerID = SortingLayerID;
                     missedArea.sortingOrder = -1;
@@ -186,8 +184,8 @@ namespace SliceVisualizer.Core
                     var sliceGO = new GameObject("Slice");
                     var slice = sliceGO.AddComponent<SpriteRenderer>();
                     var sliceTransform = sliceGO.AddComponent<RectTransform>();
-                    slice.material = _assetLoader.UINoGlowMaterial;
-                    slice.sprite = _assetLoader.White;
+                    slice.material = assetLoader.UINoGlowMaterial;
+                    slice.sprite = assetLoader.White;
                     slice.color = _config.SliceColor;
                     // slice.sortingLayerID = SortingLayerID;
                     slice.sortingOrder = 0;
