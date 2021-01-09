@@ -3,7 +3,7 @@ using Zenject;
 
 namespace SliceVisualizer.Factories
 {
-    internal class NsvBlockFactory : IFactory<NsvSlicedBlock>
+    internal class NsvBlockFactory : PlaceholderFactory<NsvSlicedBlock>
     {
         private readonly DiContainer _container;
 
@@ -12,7 +12,7 @@ namespace SliceVisualizer.Factories
             _container = container;
         }
 
-        public NsvSlicedBlock Create()
+        public override NsvSlicedBlock Create()
         {
             var slicedBlock = _container.InstantiateComponentOnNewGameObject<NsvSlicedBlock>();
             slicedBlock.gameObject.name = $"{nameof(NsvSlicedBlock)} (Factorized)";
