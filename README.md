@@ -7,8 +7,8 @@ Demo: https://www.youtube.com/watch?v=mrq-uZ2JnXg
 
 ## Installation
 
-- Install BSIPA, recommended way is to use [Beat Saber Mod Assistant][mod_assistant]
-- Copy SliceVizualizer.dll to `Beat Saber\Plugins` directory.
+- Install BSIPA and SiraUtil, recommended way is to use [Beat Saber Mod Assistant][mod_assistant]
+- Copy SliceVisualizer.dll to `Beat Saber\Plugins` directory.
 
 ## Configuration
 
@@ -56,7 +56,7 @@ To develop this plugin, you'll need:
 
 - Visual Studio 2019
 - Beat Saber installed
-- BSIPA installed in Beat Saber directory, recommended way is to use [Beat Saber Mod Assistant][mod_assistant]
+- BSIPA and SiraUtil installed in Beat Saber directory, recommended way is to use [Beat Saber Mod Assistant][mod_assistant]
 - Recommended to install Visual Studio extension `BeatSaberModdingTools.vsix` from [here][bsmg_tools_vsix]
 
 Next:
