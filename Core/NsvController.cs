@@ -68,7 +68,9 @@ namespace SliceVisualizer.Core
         {
             // Re-use cubes at the same column & layer to avoid UI cluttering
             var noteData = noteController.noteData;
-            var blockIndex = noteData.lineIndex + 4 * (int) noteData.noteLineLayer;
+            var lineLayer = ((int) noteController.noteData.noteLineLayer % 3);
+            var lineIndex = noteController.noteData.lineIndex % 4;
+            var blockIndex = lineIndex + 4 * lineLayer;
             var slicedBlock = _slicedBlockPool[blockIndex];
             slicedBlock.SetData(noteController, noteCutInfo, noteData);
         }
