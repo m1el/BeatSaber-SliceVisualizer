@@ -3,7 +3,7 @@
   "id": "SliceVisualizer",
   "name": "SliceVisualizer",
   "author": "Igor null <m1el.2027@gmail.com>",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Shows your cut data to train your accuracy",
   "gameVersion": "1.13.0",
   "dependsOn": {
