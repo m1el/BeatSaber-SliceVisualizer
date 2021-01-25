@@ -5,6 +5,7 @@ using IPA.Config.Stores.Converters;
 using SiraUtil.Converters;
 using UnityEngine;
 using SliceVisualizer.Models;
+using System.Collections.Generic;
 
 [assembly: InternalsVisibleTo(GeneratedStore.AssemblyVisibilityTarget)]
 namespace SliceVisualizer.Configuration
@@ -13,7 +14,7 @@ namespace SliceVisualizer.Configuration
     {
         public virtual bool Enabled { get; set; } = true;
         public virtual float SliceWidth { get; set; } = 0.05f;
-
+        
         [UseConverter(typeof(EnumConverter<ScoreScalingMode>))]
         public virtual ScoreScalingMode ScoreScaling { get; set; } = ScoreScalingMode.Linear;
         public virtual float ScoreScaleMin { get; set; } = 0.05f;
@@ -23,6 +24,14 @@ namespace SliceVisualizer.Configuration
         public virtual Color MissedAreaColor { get; set; } = new Color(0f, 0f, 0f, 0.5f);
         [UseConverter(typeof(ColorConverter))]
         public virtual Color SliceColor { get; set; } = new Color(1f, 1f, 1f, 1f);
+        public virtual bool UseSliceGradientColors { get; set; } = false;
+        [UseConverter(typeof(NsvListConverter<Color, ColorConverter>))]
+        public virtual List<Color> SliceGradientColors { get; set; } = new List<Color>()
+        {
+            new Color(0f, 1f, 0f, 1f),
+            new Color(0.5f, 0.69f, 0.038f, 0.0f),
+            new Color(1f, 0.37f, 0.075f, 1f),
+        };
         [UseConverter(typeof(ColorConverter))]
         public virtual Color ArrowColor { get; set; } = new Color(1f, 1f, 1f, 1f);
         [UseConverter(typeof(ColorConverter))]

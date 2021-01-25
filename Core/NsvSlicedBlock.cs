@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using SliceVisualizer.Configuration;
 using SliceVisualizer.Models;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using SiraUtil;
 
 namespace SliceVisualizer.Core
 {
@@ -266,6 +268,30 @@ namespace SliceVisualizer.Core
             _arrow.color = Fade(_config.ArrowColor, arrowAlpha);
         }
 
+        private static Color PickGradientColor(List<Color> colors, float point)
+        {
+            if (colors.Count == 0)
+            {
+                throw new ArgumentException("Empty list provided");
+            }
+            if (colors.Count == 1)
+            {
+                return colors[0];
+            }
+
+            point = Mathf.Clamp(point, 0f, 1f);
+            var position = point * (colors.Count - 1);
+            var index = (int)position;
+            if (index == colors.Count - 1)
+            {
+                return colors[index];
+            }
+
+            var fractional = position - index;
+            
+            return Color.Lerp(colors[index], colors[index + 1], fractional);
+        }
+
         private void SetSliceState(NoteController noteController, NoteCutInfo noteCutInfo, float cubeRotation)
         {
             var combinedDirection = new Vector3(-noteCutInfo.cutNormal.y, noteCutInfo.cutNormal.x, 0f);
@@ -285,15 +311,20 @@ namespace SliceVisualizer.Core
 
             sliceOffset = _config.ScoreScaling.ApplyScaling(sliceOffset, _config.ScoreScaleMin, _config.ScoreScaleMax);
 
-            if (noteCutInfo.saberTypeOK)
+            if (!noteCutInfo.saberTypeOK)
             {
-                _missedAreaColor = _config.MissedAreaColor;
+                _missedAreaColor = _saberColor;
+                _sliceColor = _saberColor;
+            }
+            else if (_config.UseSliceGradientColors && _config.SliceGradientColors.Count > 0)
+            {
+                _missedAreaColor = PickGradientColor(_config.SliceGradientColors, sliceOffset + 0.5f);
                 _sliceColor = _config.SliceColor;
             }
             else
             {
-                _missedAreaColor = _saberColor;
-                _sliceColor = _saberColor;
+                _missedAreaColor = _config.MissedAreaColor;
+                _sliceColor = _config.SliceColor;
             }
 
             _arrowColor = noteCutInfo.directionOK ? _config.ArrowColor : _config.BadDirectionColor;
@@ -346,7 +377,7 @@ namespace SliceVisualizer.Core
 
             if (_needsUpdate)
             {
-                _background.color = Fade(Pop(_color, popStrength), alpha);
+                _background.color = Fade(Color.Lerp(_color, Color.white, popStrength), alpha);
                 _arrow.color = Fade(_arrowColor, arrowAlpha * alpha);
                 _circle.color = Fade(_config.CenterColor, alpha);
                 _missedArea.color = Fade(_missedAreaColor, alpha);
@@ -365,11 +396,6 @@ namespace SliceVisualizer.Core
         private static float InvLerp(float start, float end, float x)
         {
             return Mathf.Clamp((x - start) / (end - start), 0f, 1f);
-        }
-
-        private static Color Pop(Color color, float amount)
-        {
-            return color * (1.0f - amount) + amount * Color.white;
         }
 
         public void SetActive(bool isActive)
