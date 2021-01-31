@@ -11,6 +11,7 @@ namespace SliceVisualizer.Configuration
 {
     internal class PluginConfig
     {
+        internal static PluginConfig Instance = null!;
         public virtual bool Enabled { get; set; } = true;
         public virtual float SliceWidth { get; set; } = 0.05f;
 

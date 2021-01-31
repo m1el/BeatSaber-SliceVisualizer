@@ -33,10 +33,10 @@ namespace SliceVisualizer.Core
         private bool _needsUpdate;
 
         [Inject]
-        internal void Construct(PluginConfig config, NsvAssetLoader assetLoader, ColorManager colorManager)
+        internal void Construct(NsvAssetLoader assetLoader, ColorManager colorManager)
         {
             _colorManager = colorManager;
-            _config = config;
+            _config = PluginConfig.Instance;
 
             BuildNote(assetLoader);
         }

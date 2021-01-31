@@ -3,10 +3,11 @@
   "id": "SliceVisualizer",
   "name": "SliceVisualizer",
   "author": "Igor null <m1el.2027@gmail.com>",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "Shows your cut data to train your accuracy",
   "gameVersion": "1.13.2",
   "dependsOn": {
+    "BeatSaberMarkupLanguage": "^1.4.5",
     "BSIPA": "^4.1.4",
     "SiraUtil": "^2.4.0"
   }

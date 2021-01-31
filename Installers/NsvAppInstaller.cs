@@ -1,6 +1,7 @@
 using IPA.Logging;
 using SiraUtil;
 using SliceVisualizer.Configuration;
+using SliceVisualizer.UI;
 using Zenject;
 
 namespace SliceVisualizer.Installers
@@ -14,6 +15,8 @@ namespace SliceVisualizer.Installers
         {
             _logger = logger;
             _config = config;
+            PluginConfig.Instance = config;
+            SettingsUI.CreateMenu();
         }
 
         public override void InstallBindings()
