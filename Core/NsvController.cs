@@ -74,11 +74,12 @@ namespace SliceVisualizer.Core
 
             foreach (var slicedBlock in _slicedBlockPool)
             {
+                if (!slicedBlock) { continue; }
                 slicedBlock.Dispose();
             }
         }
-
-        private void OnNoteCut(NoteController noteController, NoteCutInfo noteCutInfo)
+        
+        private void OnNoteCut(NoteController noteController, in NoteCutInfo noteCutInfo)
         {
             if (!_config.Enabled)
             {

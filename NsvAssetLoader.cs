@@ -13,7 +13,7 @@ namespace SliceVisualizer
 
         private Material? _uiNoGlowMaterial;
 
-        public Material UINoGlowMaterial => _uiNoGlowMaterial ??= new Material(Resources.FindObjectsOfTypeAll<Shader>().First(x => x.name == "Custom/Sprite"));
+        public Material UINoGlowMaterial => _uiNoGlowMaterial ??= new Material(Resources.FindObjectsOfTypeAll<Material>().First(m => m.name == "GameUISprite"));
 
         public Sprite? RRect { get; private set; }
         public Sprite? Circle { get; private set; }
