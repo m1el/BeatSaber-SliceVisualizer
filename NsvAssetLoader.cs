@@ -12,17 +12,22 @@ namespace SliceVisualizer
         private readonly SiraLog _siraLog;
 
         private Material? _uiNoGlowMaterial;
+        private bool _loggedNoGlowMaterial = false;
 
-        public Material UINoGlowMaterial {
+        public Material? UINoGlowMaterial {
             get {
                 if (!(_uiNoGlowMaterial is null))
                 {
                     return _uiNoGlowMaterial;
                 }
-                var sprite = Resources.FindObjectsOfTypeAll<Material>().First(m => m.name == "GameUISprite");
+                var sprite = Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(m => m.name == "GameUISprite");
                 if (sprite is null)
                 {
-                    _siraLog.Error("Trying to get GameUISprite before it was loaded. This should not happen.");
+                    if (!_loggedNoGlowMaterial)
+                    {
+                        _loggedNoGlowMaterial = true;
+                        _siraLog.Error("Trying to get GameUISprite before it was loaded. This should not happen.");
+                    }
                     return null;
                 }
 

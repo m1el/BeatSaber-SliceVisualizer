@@ -61,7 +61,7 @@ namespace SliceVisualizer.Core
             var delta = Time.deltaTime;
             foreach (var slicedBlock in _slicedBlockPool)
             {
-                if (slicedBlock.isActive)
+                if (!(slicedBlock is null) && slicedBlock.isActive)
                 {
                     slicedBlock.ExternalUpdate(delta);
                 }
@@ -74,7 +74,7 @@ namespace SliceVisualizer.Core
 
             foreach (var slicedBlock in _slicedBlockPool)
             {
-                if (!slicedBlock) { continue; }
+                if (slicedBlock is null) { continue; }
                 slicedBlock.Dispose();
             }
         }
@@ -93,6 +93,7 @@ namespace SliceVisualizer.Core
             var lineIndex = ((noteController.noteData.lineIndex % 4) + 4) % 4;
             var blockIndex = lineIndex + 4 * lineLayer;
             var slicedBlock = _slicedBlockPool[blockIndex];
+            if (slicedBlock is null) { return; }
             slicedBlock.SetData(noteController, noteCutInfo, noteData);
         }
 
