@@ -13,7 +13,23 @@ namespace SliceVisualizer
 
         private Material? _uiNoGlowMaterial;
 
-        public Material UINoGlowMaterial => _uiNoGlowMaterial ??= new Material(Resources.FindObjectsOfTypeAll<Material>().First(m => m.name == "GameUISprite"));
+        public Material UINoGlowMaterial {
+            get {
+                if (!(_uiNoGlowMaterial is null))
+                {
+                    return _uiNoGlowMaterial;
+                }
+                var sprite = Resources.FindObjectsOfTypeAll<Material>().First(m => m.name == "GameUISprite");
+                if (sprite is null)
+                {
+                    _siraLog.Error("Trying to get GameUISprite before it was loaded. This should not happen.");
+                    return null;
+                }
+
+                _uiNoGlowMaterial = new Material(sprite);
+                return _uiNoGlowMaterial;
+            }
+        }
 
         public Sprite? RRect { get; private set; }
         public Sprite? Circle { get; private set; }
